@@ -92,105 +92,105 @@ end
 
 function talk() 
 	cancel()
-	pressa()
+	pressa(2)
 	wait(30)
-	pressa()
+	pressa(2)
 end
 
 function status() 
 	cancel()
-	pressa()
+	pressa(2)
 	wait(30)
 	pressdown()
-	pressa()
+	pressa(2)
 end
 
 
 function stairs() 
 	cancel()
-	pressa()
+	pressa(2)
 	wait(30)
 	pressdown()
 	pressdown()
-	pressa()
+	pressa(2)
 end
 
 
 function search() 
 	cancel()
-	pressa()
+	pressa(2)
 	wait(30)
 	pressdown()
 	pressdown()
 	pressdown()
-	pressa()
+	pressa(2)
 end
 
 
 function spell(c) 
 	cancel()
-	pressa()
+	pressa(2)
 	wait(20)
 	pressright()
-	pressa()
+	pressa(2)
 	if c ~= nil then
 		for j=1,c-1 do
 			pressdown()
 		end
-		pressa()
+		pressa(2)
 	end
 end
 
 
 function item(c) 
 	cancel(5)
-	pressa()
+	pressa(2)
 	wait(20)
 	pressdown()
 	pressright()
-	pressa()
+	pressa(2)
 	if c ~= nil then
 		for j=1,c-1 do
 			pressdown()
 		end
-		pressa()
+		pressa(2)
 	end
 end
 
 
 function door() 
 	cancel(5)
-	pressa()
+	pressa(2)
 	wait(30)
 	pressdown()
 	pressdown()
 	pressright()
-	pressa()
+	pressa(2)
 end
 
 
 function take() 
 	cancel()
-	pressa()
+	pressa(2)
 	wait(30)
 	pressdown()
 	pressdown()
 	pressdown()
 	pressright()
-	pressa()
+	pressa(2)
 end
 
 function fight() 
 	cancel()
 	wait(30)
-	pressa()
+	pressa(2)
 end
 
 function run() 
 	cancel()
 	wait(30)
 	pressdown()
-	pressa()
+	pressa(2)
 end
 
 function commandlist()
@@ -234,7 +234,7 @@ while(true) do
 			elseif string.sub(msg.message, 1, 6) == "pright" then
 				pressright()
 			elseif string.sub(msg.message, 1, 1) == "a" then
-				pressa()
+				pressa(2)
 			elseif string.sub(msg.message, 1, 1) == "b" then
 				pressb()
 			elseif string.sub(msg.message, 1, 5) == "start" then
