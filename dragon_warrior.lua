@@ -128,11 +128,12 @@ end
 
 
 function spell(c) 
-	cancel()
+	cancel(5)
 	pressa(2)
-	wait(20)
+	wait(30)
 	pressright()
 	pressa(2)
+	wait(30)
 	if c ~= nil then
 		for j=1,c-1 do
 			pressdown()
@@ -145,10 +146,11 @@ end
 function item(c) 
 	cancel(5)
 	pressa(2)
-	wait(20)
+	wait(30)
 	pressdown()
 	pressright()
 	pressa(2)
+	wait(30)
 	if c ~= nil then
 		for j=1,c-1 do
 			pressdown()
@@ -216,57 +218,61 @@ while(true) do
     if irc.messages_size() > 0 then
 		msg = irc.message()
 		if msg ~= nil then
-			c = tonumber(string.sub(msg.message, -1))
-			if string.sub(msg.message, 1, 2) == "up" then
-				moveup(c)
-			elseif string.sub(msg.message, 1, 4) == "down" then
-				movedown(c)
-			elseif string.sub(msg.message, 1, 4) == "left" then
-				moveleft(c)
-			elseif string.sub(msg.message, 1, 5) == "right" then
-				moveright(c)
-			elseif string.sub(msg.message, 1, 3) == "pup" then
-				pressup()
-			elseif string.sub(msg.message, 1, 5) == "pdown" then
-				pressdown()
-			elseif string.sub(msg.message, 1, 5) == "pleft" then
-				pressleft()
-			elseif string.sub(msg.message, 1, 6) == "pright" then
-				pressright()
-			elseif string.sub(msg.message, 1, 1) == "a" then
-				pressa(2)
-			elseif string.sub(msg.message, 1, 1) == "b" then
-				pressb()
-			elseif string.sub(msg.message, 1, 5) == "start" then
-				pressselect()
-			elseif string.sub(msg.message, 1, 6) == "select" then
-				pressstart()
-			elseif string.sub(msg.message, 1, 4) == "talk" then
-				talk()
-			elseif string.sub(msg.message, 1, 6) == "status" then
-				status()
-			elseif string.sub(msg.message, 1, 6) == "stairs" then
-				stairs()
-			elseif string.sub(msg.message, 1, 6) == "search" then
-				search()
-			elseif string.sub(msg.message, 1, 5) == "spell" then
-				spell()
-			elseif string.sub(msg.message, 1, 4) == "item" then
-				item(c)
-			elseif string.sub(msg.message, 1, 4) == "door" then
-				door()
-			elseif string.sub(msg.message, 1, 4) == "take" then
-				take()
-			elseif string.sub(msg.message, 1, 5) == "fight" then
-				fight()
-			elseif string.sub(msg.message, 1, 3) == "run" then
-				run()
-			elseif string.sub(msg.message, 1, 8) == "!command" then
-				commandlist()
-			elseif string.sub(msg.message, 1, 5) == "!help" then
-				commandlist()
-			else
-			end
+			command = string.lower(msg.message)
+				c = tonumber(string.sub(command, -2))
+				if c == nil then
+					c = tonumber(string.sub(command, -1))
+				end
+				if string.sub(command, 1, 2) == "up" then
+					moveup(c)
+				elseif string.sub(command, 1, 4) == "down" then
+					movedown(c)
+				elseif string.sub(command, 1, 4) == "left" then
+					moveleft(c)
+				elseif string.sub(command, 1, 5) == "right" then
+					moveright(c)
+				elseif string.sub(command, 1, 3) == "pup" then
+					pressup()
+				elseif string.sub(command, 1, 5) == "pdown" then
+					pressdown()
+				elseif string.sub(command, 1, 5) == "pleft" then
+					pressleft()
+				elseif string.sub(command, 1, 6) == "pright" then
+					pressright()
+				elseif string.sub(command, 1, 1) == "a" then
+					pressa(2)
+				elseif string.sub(command, 1, 1) == "b" then
+					pressb()
+				elseif string.sub(command, 1, 5) == "start" then
+					pressselect()
+				elseif string.sub(command, 1, 6) == "select" then
+					pressstart()
+				elseif string.sub(command, 1, 4) == "talk" then
+					talk()
+				elseif string.sub(command, 1, 6) == "status" then
+					status()
+				elseif string.sub(command, 1, 6) == "stairs" then
+					stairs()
+				elseif string.sub(command, 1, 6) == "search" then
+					search()
+				elseif string.sub(command, 1, 5) == "spell" then
+					spell()
+				elseif string.sub(command, 1, 4) == "item" then
+					item(c)
+				elseif string.sub(command, 1, 4) == "door" then
+					door()
+				elseif string.sub(command, 1, 4) == "take" then
+					take()
+				elseif string.sub(command, 1, 5) == "fight" then
+					fight()
+				elseif string.sub(command, 1, 3) == "run" then
+					run()
+				elseif string.sub(command, 1, 8) == "!command" then
+					commandlist()
+				elseif string.sub(command, 1, 5) == "!help" then
+					commandlist()
+				else
+				end
 		end
 	end
 	emu.frameadvance()
