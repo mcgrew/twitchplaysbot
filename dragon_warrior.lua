@@ -30,208 +30,208 @@ TILE = {
 }
 
 function cancel(c)
-	if c == nil then
-		c = 3
-	end
-	for j=1,c do
-		pressb()
-	end
+  if c == nil then
+    c = 3
+  end
+  for j=1,c do
+    pressb()
+  end
 end
 
 function movedown(c)
-	if c == nil or c < 1 then 
-		c = 1
-	end
-	pressdown()
-	input = {}
-	input.down = true
-	for j=1,c do
-		for i=1,MOVEFRAMES do
-			joypad.set(1, input)
-			emu.frameadvance()
-		end
-		for i=1,16 do
-			joypad.set(1, {})
-			emu.frameadvance()
-		end
-	end
+  if c == nil or c < 1 then 
+    c = 1
+  end
+  pressdown()
+  input = {}
+  input.down = true
+  for j=1,c do
+    for i=1,MOVEFRAMES do
+      joypad.set(1, input)
+      emu.frameadvance()
+    end
+    for i=1,16 do
+      joypad.set(1, {})
+      emu.frameadvance()
+    end
+  end
 end
 
 function moveup(c)
-	if c == nil or c < 1 then 
-		c = 1
-	end
-	pressup()
-	input = {}
-	input.up = true
-	for j=1,c do
-		for i=1,MOVEFRAMES do
-			joypad.set(1, input)
-			emu.frameadvance()
-		end
-		for i=1,16 do
-			joypad.set(1, {})
-			emu.frameadvance()
-		end
-	end
+  if c == nil or c < 1 then 
+    c = 1
+  end
+  pressup()
+  input = {}
+  input.up = true
+  for j=1,c do
+    for i=1,MOVEFRAMES do
+      joypad.set(1, input)
+      emu.frameadvance()
+    end
+    for i=1,16 do
+      joypad.set(1, {})
+      emu.frameadvance()
+    end
+  end
 end
 
 function moveleft(c)
-	if c == nil or c < 1 then 
-		c = 1
-	end
-	pressleft()
-	input = {}
-	input.left = true
-	for j=1,c do
-		for i=1,MOVEFRAMES do
-			joypad.set(1, input)
-			emu.frameadvance()
-		end
-		for i=1,16 do
-			joypad.set(1, {})
-			emu.frameadvance()
-		end
-	end
+  if c == nil or c < 1 then 
+    c = 1
+  end
+  pressleft()
+  input = {}
+  input.left = true
+  for j=1,c do
+    for i=1,MOVEFRAMES do
+      joypad.set(1, input)
+      emu.frameadvance()
+    end
+    for i=1,16 do
+      joypad.set(1, {})
+      emu.frameadvance()
+    end
+  end
 end
 
 function moveright(c)
-	if c == nil or c < 1 then 
-		c = 1
-	end
-	pressright()
-	input = {}
-	input.right = true
-	for j=1,c do
-		for i=1,MOVEFRAMES do
-			joypad.set(1, input)
-			emu.frameadvance()
-		end
-		for i=1,16 do
-			joypad.set(1, {})
-			emu.frameadvance()
-		end
-	end
+  if c == nil or c < 1 then 
+    c = 1
+  end
+  pressright()
+  input = {}
+  input.right = true
+  for j=1,c do
+    for i=1,MOVEFRAMES do
+      joypad.set(1, input)
+      emu.frameadvance()
+    end
+    for i=1,16 do
+      joypad.set(1, {})
+      emu.frameadvance()
+    end
+  end
 end
 
 function talk() 
-	cancel()
-	pressa(2)
-	wait(30)
-	pressa(2)
+  cancel()
+  pressa(2)
+  wait(30)
+  pressa(2)
 end
 
 function status() 
-	cancel()
-	pressa(2)
-	wait(30)
-	pressdown()
-	pressa(2)
+  cancel()
+  pressa(2)
+  wait(30)
+  pressdown()
+  pressa(2)
 end
 
 
 function stairs() 
-	cancel()
-	pressa(2)
-	wait(30)
-	pressdown()
-	pressdown()
-	pressa(2)
+  cancel()
+  pressa(2)
+  wait(30)
+  pressdown()
+  pressdown()
+  pressa(2)
 end
 
 
 function search() 
-	cancel()
-	pressa(2)
-	wait(30)
-	pressdown()
-	pressdown()
-	pressdown()
-	pressa(2)
+  cancel()
+  pressa(2)
+  wait(30)
+  pressdown()
+  pressdown()
+  pressdown()
+  pressa(2)
 end
 
 
 function spell(c) 
-	cancel(5)
-	pressa(2)
-	wait(30)
-	pressright()
-	pressa(2)
-	wait(30)
-	if c ~= nil then
-		for j=1,c-1 do
-			pressdown()
-		end
-		pressa(2)
-	end
+  cancel(5)
+  pressa(2)
+  wait(30)
+  pressright()
+  pressa(2)
+  wait(30)
+  if c ~= nil then
+    for j=1,c-1 do
+      pressdown()
+    end
+    pressa(2)
+  end
 end
 
 
 function item(c) 
-	cancel(5)
-	pressa(2)
-	wait(30)
-	pressdown()
-	pressright()
-	pressa(2)
-	wait(30)
-	if c ~= nil then
-		for j=1,c-1 do
-			pressdown()
-		end
-		pressa(2)
-	end
+  cancel(5)
+  pressa(2)
+  wait(30)
+  pressdown()
+  pressright()
+  pressa(2)
+  wait(30)
+  if c ~= nil then
+    for j=1,c-1 do
+      pressdown()
+    end
+    pressa(2)
+  end
 end
 
 
 function door() 
-	cancel(5)
-	pressa(2)
-	wait(30)
-	pressdown()
-	pressdown()
-	pressright()
-	pressa(2)
+  cancel(5)
+  pressa(2)
+  wait(30)
+  pressdown()
+  pressdown()
+  pressright()
+  pressa(2)
 end
 
 
 function take() 
-	cancel()
-	pressa(2)
-	wait(30)
-	pressdown()
-	pressdown()
-	pressdown()
-	pressright()
-	pressa(2)
+  cancel()
+  pressa(2)
+  wait(30)
+  pressdown()
+  pressdown()
+  pressdown()
+  pressright()
+  pressa(2)
 end
 
 function fight() 
-	cancel()
-	wait(30)
-	pressa(2)
+  cancel()
+  wait(30)
+  pressa(2)
 end
 
 function run() 
-	cancel()
-	wait(30)
-	pressdown()
-	pressa(2)
+  cancel()
+  wait(30)
+  pressdown()
+  pressa(2)
 end
 
 function commandlist()
-	say("General Commands:")
-	say("up#, down#, left#, right#, a, b, select, start")
-	say("Overworld Commands:")
-	say("talk, status, stairs, search, spell#, item#, door, take")
-	say("Battle Commands:")
-	say("fight, run, spell#, item#")
-	say("Menu Commands:")
-	say("pup, pdown, pleft, pright")
+  say("General Commands:")
+  say("up#, down#, left#, right#, a, b, select, start")
+  say("Overworld Commands:")
+  say("talk, status, stairs, search, spell#, item#, door, take")
+  say("Battle Commands:")
+  say("fight, run, spell#, item#")
+  say("Menu Commands:")
+  say("pup, pdown, pleft, pright")
 end
 
 function say(str) 
-	irc.send(string.format("PRIVMSG %s :%s", irc.settings.channel, str))
+  irc.send(string.format("PRIVMSG %s :%s", irc.settings.channel, str))
 end
 
 function parsecommand(player, command)
