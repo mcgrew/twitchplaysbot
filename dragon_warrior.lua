@@ -3,12 +3,13 @@ require("irc")
 require("settings")
 require("controls")
 
-OFFLINE = false -- mostly for development testing
+OFFLINE = true -- mostly for development testing
 
 MOVEFRAMES = 16
 
 CHEAT = {
-  HERB_STORE = true
+  HERB_STORE = true, -- buy herbs anywhere
+  ENEMY_HP = true  -- show enemy hit points
 }
 
 TILE = {
@@ -309,7 +310,7 @@ Player = {
   keys = 0,
   tile = 0,
   last_tile = 0,
-  in_battle = 0
+  in_battle = false -- this doesn't work yet
 }
 
 function Player.update (self)
@@ -428,22 +429,42 @@ Enemy = {
   hp = 0,
   change = {
     hp = 0
-  }
+  },
+  in_battle = false
 }
 
 function Enemy.update (self)
-
   -- read in the values from memory.
   hp = memory.readbyte(0xe2)
-
   -- update the changes.
   self.change.hp = hp - self.hp
-
   -- update the object variables.
   self.hp = hp
 
+  -- update battle status
+  if not self.in_battle and self.change.hp > 0 then
+    self.in_battle = true
+  end
+  -- hit points wrap below zero, so check for large increases.
+  if self.hp == 0 or self.change.hp > 150 then
+    self.in_battle = false
+  end
+
 end
 
+function Enemy.show_hp (self)
+  if (self.in_battle and CHEAT.ENEMY_HP) then 
+    gui.drawbox(152, 134, 190, 144, "black")
+    gui.text(154, 136, string.format( "HP %3d", self.hp), "white", "black")
+  end
+end
+
+-- 
+--  Draws any hud elements, such as the enemy hit points
+-- 
+function drawhud() 
+  enemy:show_hp()
+end
 
 -- main loop
 irc.initialize(irc.settings)
@@ -454,6 +475,7 @@ player = Player
 player:update()
 enemy = Enemy
 enemy:update()
+gui.register(drawhud)
 
 while(true) do
   if (emu.framecount() % 64 == 0) then
@@ -476,6 +498,6 @@ while(true) do
       end
     end
   end
-emu.frameadvance()
+  emu.frameadvance()
 end
 
