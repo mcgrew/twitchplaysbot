@@ -3,7 +3,13 @@ require("irc")
 require("settings")
 require("controls")
 
-moveframes = 16
+OFFLINE = false -- mostly for development testing
+
+MOVEFRAMES = 16
+
+CHEAT = {
+  HERB_STORE = true
+}
 
 TILE = {
   GRASS = 0,
@@ -39,7 +45,7 @@ function movedown(c)
 	input = {}
 	input.down = true
 	for j=1,c do
-		for i=1,moveframes do
+		for i=1,MOVEFRAMES do
 			joypad.set(1, input)
 			emu.frameadvance()
 		end
@@ -58,7 +64,7 @@ function moveup(c)
 	input = {}
 	input.up = true
 	for j=1,c do
-		for i=1,moveframes do
+		for i=1,MOVEFRAMES do
 			joypad.set(1, input)
 			emu.frameadvance()
 		end
@@ -77,7 +83,7 @@ function moveleft(c)
 	input = {}
 	input.left = true
 	for j=1,c do
-		for i=1,moveframes do
+		for i=1,MOVEFRAMES do
 			joypad.set(1, input)
 			emu.frameadvance()
 		end
@@ -96,7 +102,7 @@ function moveright(c)
 	input = {}
 	input.right = true
 	for j=1,c do
-		for i=1,moveframes do
+		for i=1,MOVEFRAMES do
 			joypad.set(1, input)
 			emu.frameadvance()
 		end
@@ -227,7 +233,7 @@ function say(str)
 	irc.send(string.format("PRIVMSG %s :%s", irc.settings.channel, str))
 end
 
-function parsecommand(command)
+function parsecommand(player, command)
       c = tonumber(string.sub(command, -2))
       if c == nil then
         c = tonumber(string.sub(command, -1))
@@ -276,6 +282,8 @@ function parsecommand(command)
         fight()
       elseif string.sub(command, 1, 3) == "run" then
         run()
+      elseif string.sub(command, 1, 4) == "herb" then
+        player:herb()
       elseif string.sub(command, 1, 8) == "!command" then
         commandlist()
       elseif string.sub(command, 1, 5) == "!help" then
@@ -297,6 +305,8 @@ Player = {
     gold = 0,
     experience = 0
   },
+  herbs = 0,
+  keys = 0,
   tile = 0,
   last_tile = 0,
   in_battle = 0
@@ -325,9 +335,93 @@ function Player.update (self)
   self.gold = gold
   self.experience = experience
 
+  self.herbs = memory.readbyte(0xc0)
+  self.keys = memory.readbyte(0xbf)
+  self.max_hp = memory.readbyte(0xca)
+  self.max_mp = memory.readbyte(0xcb)
+
   self.last_tile = self.tile
   self.tile = memory.readbyte(0xe0)
 
+end
+
+function Player.add_hp (self, amount)
+  return self:set_hp(self.hp + amount)
+end
+
+function Player.set_hp (self, amount)
+  if (amount > 255 or amount < 0) then
+    return false
+  end
+  self.hp = amount
+  memory.writebyte(0xc5, amount)
+  return true
+end
+
+function Player.add_mp (self, amount)
+  return self:set_mp(self.mp + amount)
+end
+
+function Player.set_mp (self, amount)
+  if (amount > 255 or amount < 0) then
+    return false
+  end
+  self.mp = amount
+  memory.writebyte(0xc6, amount)
+  return true
+end
+
+function Player.add_gold (self, amount)
+  return self:set_gold(self.gold + amount)
+end
+
+function Player.set_gold (self, amount)
+  if (amount > 65535 or amount < 0) then
+    return false
+  end
+  self.gold = amount
+  memory.writebyte(0xbd, amount / 256)
+  memory.writebyte(0xbc, amount % 256)
+  return true
+end
+
+function Player.add_experience (self, amount)
+  return self:set_experience(self.experience + amount)
+end
+
+function Player.set_experience (self, amount)
+  if (amount > 65535 or amount < 0) then
+    return false
+  end
+  self.experience = amount
+  memory.writebyte(0xbb, self.experience / 256)
+  memory.writebyte(0xba, self.experience % 256)
+end
+
+function Player.add_herb (self)
+  self.herbs = memory.readbyte(0xc0)
+  if self.herbs >= 6 then
+    return false
+  end
+  memory.writebyte(0xc0, self.herbs + 1)
+  return true
+end
+
+function Player.herb (self)
+  if self.herbs > 0 then
+    item(1)
+    return true
+  end
+  if CHEAT.HERB_STORE then
+    if (self:add_gold(-24)) then 
+      self:add_herb()
+      item(1)
+      return true
+    end
+  end
+  emu.message("You don't have any herbs.")
+  say("You don't have any herbs or enough gold to buy one.")
+  return false
 end
 
 Enemy = {
@@ -353,7 +447,9 @@ end
 
 -- main loop
 irc.initialize(irc.settings)
-irc.connect()
+if not OFFLINE then
+  irc.connect()
+end
 player = Player
 player:update()
 enemy = Enemy
@@ -370,12 +466,14 @@ while(true) do
     player.last_tile = player.tile
     stairs()
   end
+  if not OFFLINE then
     irc.read()
-  if irc.messages_size() > 0 then
-    msg = irc.message()
-    if msg ~= nil then
-      command = string.lower(msg.message)
-      parsecommand(command)
+    if irc.messages_size() > 0 then
+      msg = irc.message()
+      if msg ~= nil then
+        command = string.lower(msg.message)
+        parsecommand(player, command)
+      end
     end
   end
 emu.frameadvance()
