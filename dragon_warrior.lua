@@ -3,7 +3,7 @@ require("irc")
 require("settings")
 require("controls")
 
-OFFLINE = true -- mostly for development testing
+OFFLINE = false -- mostly for development testing
 
 MOVEFRAMES = 16
 
