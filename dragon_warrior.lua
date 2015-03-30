@@ -123,6 +123,16 @@ function parsecommand(player, command)
 end
 
 in_battle = false
+function battle_mode (b)
+	if b ~= nil then
+		in_battle = b
+		if not b then
+			-- overwrite monster hp to avoid confusion
+			memory.writebyte(0xe2, 0)
+		end
+	end
+	return in_battle
+end
 
 Player = {
   level = 0,
@@ -182,7 +192,7 @@ function Player.update (self)
   map_x = memory.readbyte(0x8e)
   map_y = memory.readbyte(0x8f)
   if (map_x ~= self.map_x or map_y ~= self.map_y) then
-    in_battle = false
+    battle_mode(false)
   end
   self.map_x = map_x
   self.map_y = map_y
@@ -623,11 +633,11 @@ function Enemy.update (self)
 
   -- update battle status
   if not in_battle and self.change.hp ~= 0 then
-    in_battle = true
+    battle_mode(true)
   end
   -- hit points wrap below zero, so check for large increases.
   if self.hp == 0 or self.change.hp > 150 then
-    in_battle = false
+    battle_mode(false)
   end
 
 end
