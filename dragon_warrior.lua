@@ -406,7 +406,7 @@ function Player.herb (self)
     item(1)
     return true
   end
-  if CHEAT.HERB_STORE then
+  if cheat.herb_store then
     if (self:add_gold(-24)) then 
       self:add_herb()
       item(1)
@@ -435,7 +435,7 @@ function Enemy.update (self)
   self.hp = hp
 
   -- update battle status
-  if not self.in_battle and self.change.hp > 0 then
+  if not self.in_battle and self.change.hp ~= 0 then
     self.in_battle = true
   end
   -- hit points wrap below zero, so check for large increases.
@@ -446,7 +446,7 @@ function Enemy.update (self)
 end
 
 function Enemy.show_hp (self)
-  if (self.in_battle and CHEAT.ENEMY_HP) then 
+  if (self.in_battle and cheat.enemy_hp) then 
     gui.drawbox(152, 134, 190, 144, "black")
     gui.text(154, 136, string.format( "HP %3d", self.hp), "white", "black")
   end
