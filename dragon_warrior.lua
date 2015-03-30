@@ -22,195 +22,6 @@ TILE = {
   FORCE_FIELD = 14
 }
 
-function cancel(c)
-  if c == nil then
-    c = 3
-  end
-  for j=1,c do
-    pressb()
-  end
-end
-
-function movedown(c)
-  if c == nil or c < 1 then 
-    c = 1
-  end
-  pressdown()
-  input = {}
-  input.down = true
-  for j=1,c do
-    for i=1,MOVEFRAMES do
-      joypad.set(1, input)
-      emu.frameadvance()
-    end
-    for i=1,16 do
-      joypad.set(1, {})
-      emu.frameadvance()
-    end
-  end
-end
-
-function moveup(c)
-  if c == nil or c < 1 then 
-    c = 1
-  end
-  pressup()
-  input = {}
-  input.up = true
-  for j=1,c do
-    for i=1,MOVEFRAMES do
-      joypad.set(1, input)
-      emu.frameadvance()
-    end
-    for i=1,16 do
-      joypad.set(1, {})
-      emu.frameadvance()
-    end
-  end
-end
-
-function moveleft(c)
-  if c == nil or c < 1 then 
-    c = 1
-  end
-  pressleft()
-  input = {}
-  input.left = true
-  for j=1,c do
-    for i=1,MOVEFRAMES do
-      joypad.set(1, input)
-      emu.frameadvance()
-    end
-    for i=1,16 do
-      joypad.set(1, {})
-      emu.frameadvance()
-    end
-  end
-end
-
-function moveright(c)
-  if c == nil or c < 1 then 
-    c = 1
-  end
-  pressright()
-  input = {}
-  input.right = true
-  for j=1,c do
-    for i=1,MOVEFRAMES do
-      joypad.set(1, input)
-      emu.frameadvance()
-    end
-    for i=1,16 do
-      joypad.set(1, {})
-      emu.frameadvance()
-    end
-  end
-end
-
-function talk() 
-  cancel()
-  pressa(2)
-  wait(30)
-  pressa(2)
-end
-
-function status() 
-  cancel()
-  pressa(2)
-  wait(30)
-  pressdown()
-  pressa(2)
-end
-
-
-function stairs() 
-  cancel()
-  pressa(2)
-  wait(30)
-  pressdown()
-  pressdown()
-  pressa(2)
-end
-
-
-function search() 
-  cancel()
-  pressa(2)
-  wait(30)
-  pressdown()
-  pressdown()
-  pressdown()
-  pressa(2)
-end
-
-
-function spell(c) 
-  cancel(5)
-  pressa(2)
-  wait(30)
-  pressright()
-  pressa(2)
-  wait(30)
-  if c ~= nil then
-    for j=1,c-1 do
-      pressdown()
-    end
-    pressa(2)
-  end
-end
-
-
-function item(c) 
-  cancel(5)
-  pressa(2)
-  wait(30)
-  pressdown()
-  pressright()
-  pressa(2)
-  wait(30)
-  if c ~= nil then
-    for j=1,c-1 do
-      pressdown()
-    end
-    pressa(2)
-  end
-end
-
-
-function door() 
-  cancel(5)
-  pressa(2)
-  wait(30)
-  pressdown()
-  pressdown()
-  pressright()
-  pressa(2)
-end
-
-
-function take() 
-  cancel()
-  pressa(2)
-  wait(30)
-  pressdown()
-  pressdown()
-  pressdown()
-  pressright()
-  pressa(2)
-end
-
-function fight() 
-  cancel()
-  wait(30)
-  pressa(2)
-end
-
-function run() 
-  cancel()
-  wait(30)
-  pressdown()
-  pressa(2)
-end
 
 function commandlist()
   say("General Commands:")
@@ -218,7 +29,7 @@ function commandlist()
   say("Overworld Commands:")
   say("talk, status, stairs, search, spell#, item#, door, take")
   say("Battle Commands:")
-  say("fight, run, spell#, item#")
+  say("fight, run, spell, item#")
   say("Menu Commands:")
   say("pup, pdown, pleft, pright")
 end
@@ -233,13 +44,13 @@ function parsecommand(player, command)
         c = tonumber(string.sub(command, -1))
       end
       if string.sub(command, 1, 2) == "up" then
-        moveup(c)
+        player:moveup(c)
       elseif string.sub(command, 1, 4) == "down" then
-        movedown(c)
+        player:movedown(c)
       elseif string.sub(command, 1, 4) == "left" then
-        moveleft(c)
+        player:moveleft(c)
       elseif string.sub(command, 1, 5) == "right" then
-        moveright(c)
+        player:moveright(c)
       elseif string.sub(command, 1, 3) == "pup" then
         pressup()
       elseif string.sub(command, 1, 5) == "pdown" then
@@ -257,25 +68,45 @@ function parsecommand(player, command)
       elseif string.sub(command, 1, 6) == "select" then
         pressstart()
       elseif string.sub(command, 1, 4) == "talk" then
-        talk()
+        player:talk()
       elseif string.sub(command, 1, 6) == "status" then
-        status()
+        player:status()
       elseif string.sub(command, 1, 6) == "stairs" then
-        stairs()
+        player:stairs()
       elseif string.sub(command, 1, 6) == "search" then
-        search()
+        player:search()
       elseif string.sub(command, 1, 5) == "spell" then
-        spell(c)
+        player:spell()
       elseif string.sub(command, 1, 4) == "item" then
-        item(c)
+        player:item(c)
       elseif string.sub(command, 1, 4) == "door" then
-        door()
+        player:door()
       elseif string.sub(command, 1, 4) == "take" then
-        take()
+        player:take()
       elseif string.sub(command, 1, 5) == "fight" then
-        fight()
+        player:fight()
       elseif string.sub(command, 1, 3) == "run" then
-        run()
+        player:run()
+      elseif string.sub(command, 1, 8) == "healmore" then
+        player:healmore()
+      elseif string.sub(command, 1, 8) == "hurtmore" then
+        player:hurtmore()
+      elseif string.sub(command, 1, 4) == "heal" then
+        player:heal()
+      elseif string.sub(command, 1, 4) == "hurt" then
+        player:hurt()
+      elseif string.sub(command, 1, 5) == "sleep" then
+        player:sleep()
+      elseif string.sub(command, 1, 7) == "radiant" then
+        player:radiant()
+      elseif string.sub(command, 1, 9) == "stopspell" then
+        player:stopspell()
+      elseif string.sub(command, 1, 7) == "outside" then
+        player:outside()
+      elseif string.sub(command, 1, 6) == "return" then
+        player:return_()
+      elseif string.sub(command, 1, 5) == "repel" then
+        player:repel()
       elseif string.sub(command, 1, 4) == "herb" then
         player:herb()
       elseif string.sub(command, 1, 8) == "!command" then
@@ -285,6 +116,8 @@ function parsecommand(player, command)
       else
       end
 end
+
+in_battle = false
 
 Player = {
   level = 0,
@@ -303,7 +136,6 @@ Player = {
   keys = 0,
   tile = 0,
   last_tile = 0,
-  in_battle = false -- this doesn't work yet
 }
 
 function Player.update (self)
@@ -337,6 +169,312 @@ function Player.update (self)
   self.last_tile = self.tile
   self.tile = memory.readbyte(0xe0)
 
+end
+
+function Player.cancel(self, c)
+  if c == nil then
+    c = 3
+  end
+  for j=1,c do
+    pressb()
+  end
+end
+
+function Player.movedown(self, c)
+  if c == nil or c < 1 then 
+    c = 1
+  end
+  pressdown()
+  input = {}
+  input.down = true
+  for j=1,c do
+    for i=1,MOVEFRAMES do
+      joypad.set(1, input)
+      emu.frameadvance()
+    end
+    for i=1,16 do
+      joypad.set(1, {})
+      emu.frameadvance()
+    end
+  end
+end
+
+function Player.moveup(self, c)
+  if c == nil or c < 1 then 
+    c = 1
+  end
+  pressup()
+  input = {}
+  input.up = true
+  for j=1,c do
+    for i=1,MOVEFRAMES do
+      joypad.set(1, input)
+      emu.frameadvance()
+    end
+    for i=1,16 do
+      joypad.set(1, {})
+      emu.frameadvance()
+    end
+  end
+end
+
+function Player.moveleft(self, c)
+  if c == nil or c < 1 then 
+    c = 1
+  end
+  pressleft()
+  input = {}
+  input.left = true
+  for j=1,c do
+    for i=1,MOVEFRAMES do
+      joypad.set(1, input)
+      emu.frameadvance()
+    end
+    for i=1,16 do
+      joypad.set(1, {})
+      emu.frameadvance()
+    end
+  end
+end
+
+function Player.moveright(self, c)
+  if c == nil or c < 1 then 
+    c = 1
+  end
+  pressright()
+  input = {}
+  input.right = true
+  for j=1,c do
+    for i=1,MOVEFRAMES do
+      joypad.set(1, input)
+      emu.frameadvance()
+    end
+    for i=1,16 do
+      joypad.set(1, {})
+      emu.frameadvance()
+    end
+  end
+end
+
+function Player.talk(self) 
+  self:cancel()
+  pressa(2)
+  wait(30)
+  pressa(2)
+end
+
+function Player.status(self) 
+  self:cancel()
+  pressa(2)
+  wait(30)
+  pressdown()
+  pressa(2)
+end
+
+
+function Player.stairs(self) 
+  self:cancel()
+  pressa(2)
+  wait(30)
+  pressdown()
+  pressdown()
+  pressa(2)
+end
+
+
+function Player.search(self) 
+  self:cancel()
+  pressa(2)
+  wait(30)
+  pressdown()
+  pressdown()
+  pressdown()
+  pressa(2)
+end
+
+
+function Player.spell(self, c) 
+  self:cancel(5)
+  pressa(2)
+  wait(30)
+  pressright()
+  pressa(2)
+  wait(30)
+  if c ~= nil then
+    for j=1,c-1 do
+      pressdown()
+    end
+    pressa(2)
+  end
+end
+
+
+function Player.item(self, c) 
+  self:cancel(5)
+  pressa(2)
+  wait(30)
+  pressdown()
+  pressright()
+  pressa(2)
+  wait(30)
+  if c ~= nil then
+    for j=1,c-1 do
+      pressdown()
+    end
+    pressa(2)
+  end
+end
+
+
+function Player.door(self) 
+  self:cancel(5)
+  pressa(2)
+  wait(30)
+  pressdown()
+  pressdown()
+  pressright()
+  pressa(2)
+end
+
+
+function Player.take(self) 
+  self:cancel()
+  pressa(2)
+  wait(30)
+  pressdown()
+  pressdown()
+  pressdown()
+  pressright()
+  pressa(2)
+end
+
+function Player.fight(self) 
+  self:cancel()
+  wait(30)
+  pressa(2)
+end
+
+function Player.run(self) 
+  self:cancel()
+  wait(30)
+  pressdown()
+  pressa(2)
+end
+
+function Player.heal(self)
+  if (AND(memory.readbyte(0xce), 0x1) > 0) then
+    player:spell(1)
+  else
+    say("I do not yet have the heal spell")
+    return false
+  end 
+  return true
+end
+
+function Player.hurt(self)
+  if (AND(memory.readbyte(0xce), 0x2) > 0) then
+    if not in_battle then
+      say("Hurt is a battle spell. I are not in battle.")
+      return false
+    end
+    player:spell(2)
+  else
+    say("I do not yet have the hurt spell")
+    return false
+  end 
+  return true
+end
+
+function Player.sleep(self)
+  if (AND(memory.readbyte(0xce), 0x4) > 0) then
+    if not in_battle then
+      say("Sleep is a battle spell. I are not in battle.")
+      return false
+    end
+    player:spell(3)
+  else
+    say("I do not yet have the sleep spell")
+    return false
+  end 
+  return true
+end
+
+function Player.radiant(self)
+  if (AND(memory.readbyte(0xce), 0x8) > 0) then
+    player:spell(4)
+  else
+    say("I do not yet have the radiant spell")
+    return false
+  end 
+  return true
+end
+
+function Player.stopspell(self)
+  if (AND(memory.readbyte(0xce), 0x10) > 0) then
+    if not in_battle then
+      say("Stopspell is a battle spell. I are not in battle.")
+      return false
+    end
+    player:spell(5)
+  else
+    say("I do not yet have the stopspell spell")
+    return false
+  end 
+  return true
+end
+
+function Player.outside(self)
+  if (AND(memory.readbyte(0xce), 0x20) > 0) then
+    player:spell(6)
+  else
+    say("I do not yet have the outside spell")
+    return false
+  end 
+  return true
+end
+
+function Player.return_(self)
+  if (AND(memory.readbyte(0xce), 0x40) > 0) then
+    player:spell(7)
+  else
+    say("I do not yet have the return spell")
+    return false
+  end 
+  return true
+end
+
+function Player.repel(self)
+  if (AND(memory.readbyte(0xce), 0x80) > 0) then
+    player:spell(8)
+  else
+    say("I do not yet have the repel spell")
+    return false
+  end 
+  return true
+end
+
+function Player.healmore(self)
+  if (AND(memory.readbyte(0xcf), 0x1) > 0) then
+    player:spell(9)
+  else
+    say("I do not yet have the healmore spell")
+    return false
+  end 
+  return true
+end
+
+function Player.hurtmore(self)
+  if (AND(memory.readbyte(0xcf), 0x20) > 0) then
+    if not in_battle then
+      say("Hurtmore is a battle spell. I are not in battle.")
+      return false
+    end
+    player:spell(10)
+  else
+    say("I do not yet have the hurtmore spell")
+    return false
+  end 
+  return true
 end
 
 function Player.add_hp (self, amount)
@@ -413,8 +551,7 @@ function Player.herb (self)
       return true
     end
   end
-  emu.message("You don't have any herbs.")
-  say("You don't have any herbs or enough gold to buy one.")
+  say("I don't have any herbs or enough gold to buy one.")
   return false
 end
 
@@ -423,7 +560,6 @@ Enemy = {
   change = {
     hp = 0
   },
-  in_battle = false
 }
 
 function Enemy.update (self)
@@ -435,18 +571,18 @@ function Enemy.update (self)
   self.hp = hp
 
   -- update battle status
-  if not self.in_battle and self.change.hp ~= 0 then
-    self.in_battle = true
+  if not in_battle and self.change.hp ~= 0 then
+    in_battle = true
   end
   -- hit points wrap below zero, so check for large increases.
   if self.hp == 0 or self.change.hp > 150 then
-    self.in_battle = false
+    in_battle = false
   end
 
 end
 
 function Enemy.show_hp (self)
-  if (self.in_battle and cheat.enemy_hp) then 
+  if (in_battle and cheat.enemy_hp) then 
     gui.drawbox(152, 134, 190, 144, "black")
     gui.text(154, 136, string.format( "HP %3d", self.hp), "white", "black")
   end
