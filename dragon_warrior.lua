@@ -666,7 +666,7 @@ function update()
 
   -- create a save state every 10 minutes in case of a crash
   if (emu.framecount() % 360000) then
-    savestate.create(10)
+    savestate.save(savestate.create(1))
   end
   -- update the player and enemy info every 1/2 second
   if (emu.framecount() % 15 == 0) then
