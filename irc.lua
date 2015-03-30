@@ -61,7 +61,7 @@ function read()
 					send("PASS "..password)
 				end
 				send("NICK "..nickname)
-				send("USER "..nickname.." 0 * :TwitchPlaysBot by juju2143 http://github.com/juju2143/twitchplaysbot")
+				send("USER "..nickname.." 0 * :TwitchPlaysBot by mcgrew http://github.com/mcgrew/twitchplaysbot")
 				connected = true
 			end
 		else
