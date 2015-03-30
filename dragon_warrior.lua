@@ -3,14 +3,7 @@ require("irc")
 require("settings")
 require("controls")
 
-OFFLINE = false -- mostly for development testing
-
 MOVEFRAMES = 16
-
-CHEAT = {
-  HERB_STORE = true, -- buy herbs anywhere
-  ENEMY_HP = true  -- show enemy hit points
-}
 
 TILE = {
   GRASS = 0,
@@ -468,7 +461,7 @@ end
 
 -- main loop
 irc.initialize(irc.settings)
-if not OFFLINE then
+if not debug.offline then
   irc.connect()
 end
 player = Player
@@ -478,7 +471,12 @@ enemy:update()
 gui.register(drawhud)
 
 while(true) do
-  if (emu.framecount() % 64 == 0) then
+  -- create a save state every 10 minutes in case of a crash
+  if (emu.framecount() % 360000) then
+    savestate.create(10)
+  end
+  -- update the player and enemy info every 1/2 second
+  if (emu.framecount() % 30 == 0) then
     player:update()
     enemy:update()
   end
@@ -488,7 +486,7 @@ while(true) do
     player.last_tile = player.tile
     stairs()
   end
-  if not OFFLINE then
+  if not debug.offline then
     irc.read()
     if irc.messages_size() > 0 then
       msg = irc.message()
