@@ -59,9 +59,9 @@ function parsecommand(player, command)
         pressleft()
       elseif string.sub(command, 1, 6) == "pright" then
         pressright()
-      elseif string.sub(command, 1, 1) == "a" then
+      elseif command == "a" then
         pressa(2)
-      elseif string.sub(command, 1, 1) == "b" then
+      elseif command == "b" then
         pressb()
       elseif string.sub(command, 1, 5) == "start" then
         pressselect()
