@@ -653,7 +653,7 @@ end
 -- 
 --  Draws any hud elements, such as the enemy hit points
 -- 
-function update()
+function overlay()
   enemy:show_hp()
 --   gui.text(8, 16,
 --     string.format( "%3d %3d",
@@ -663,16 +663,17 @@ function update()
     gui.drawbox(0, 0, 60, 15, "black")
     gui.text(8, 8, "Grind mode", "white", "black")
   end
+end
 
+function update()
   -- create a save state every 10 minutes in case of a crash
-  if (emu.framecount() % 360000) then
-    savestate.create(10)
+  if (emu.framecount() % 3600 == 0) then
+    savestate.persist(savestate.object(1))
   end
-  -- update the player and enemy info every 1/2 second
+  -- update the player and enemy info every 1/4 second
   if (emu.framecount() % 15 == 0) then
     player:update()
     enemy:update()
--- player:set_hp(255)
   end
 end
 
@@ -686,7 +687,8 @@ player:update()
 player.last_command = emu.framecount()
 enemy = Enemy
 enemy:update()
-gui.register(update)
+gui.register(overlay)
+emu.registerafter(update)
 
 while(true) do
   if ((player.tile == TILE.STAIRS_UP or player.tile == TILE.STAIRS_DOWN) and
