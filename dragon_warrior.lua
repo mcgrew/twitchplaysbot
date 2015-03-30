@@ -3,8 +3,6 @@ require("irc")
 require("settings")
 require("controls")
 
-MOVEFRAMES = 16
-
 TILE = {
   GRASS = 0,
   DESERT = 1,
@@ -35,7 +33,9 @@ function commandlist()
 end
 
 function say(str) 
-  irc.send(string.format("PRIVMSG %s :%s", irc.settings.channel, str))
+  if not player.quiet then
+    irc.send(string.format("PRIVMSG %s :%s", irc.settings.channel, str))
+  end
 end
 
 function parsecommand(player, command)
@@ -109,12 +109,17 @@ function parsecommand(player, command)
         player:repel()
       elseif string.sub(command, 1, 4) == "herb" then
         player:herb()
+      elseif string.sub(command, 1, 6) == "!grind" then
+        player.last_command = 0
+        return false
       elseif string.sub(command, 1, 8) == "!command" then
         commandlist()
       elseif string.sub(command, 1, 5) == "!help" then
         commandlist()
       else
+        return false
       end
+      return true
 end
 
 in_battle = false
@@ -134,8 +139,14 @@ Player = {
   },
   herbs = 0,
   keys = 0,
+  map_x = 0,
+  map_y = 0,
   tile = 0,
   last_tile = 0,
+
+  last_command = 0,
+  grind_action = 0,
+  quiet = false
 }
 
 function Player.update (self)
@@ -168,6 +179,13 @@ function Player.update (self)
 
   self.last_tile = self.tile
   self.tile = memory.readbyte(0xe0)
+  map_x = memory.readbyte(0x8e)
+  map_y = memory.readbyte(0x8f)
+  if (map_x ~= self.map_x or map_y ~= self.map_y) then
+    in_battle = false
+  end
+  self.map_x = map_x
+  self.map_y = map_y
 
 end
 
@@ -184,17 +202,14 @@ function Player.movedown(self, c)
   if c == nil or c < 1 then 
     c = 1
   end
-  pressdown()
-  input = {}
-  input.down = true
   for j=1,c do
-    for i=1,MOVEFRAMES do
-      joypad.set(1, input)
-      emu.frameadvance()
-    end
-    for i=1,16 do
-      joypad.set(1, {})
-      emu.frameadvance()
+    starty = memory.readbyte(0x8f)
+    startframe = emu.framecount()
+    for j=1,8 do
+      pressdown(8)
+      if memory.readbyte(0x8f) > starty then
+        break
+      end
     end
   end
 end
@@ -203,17 +218,14 @@ function Player.moveup(self, c)
   if c == nil or c < 1 then 
     c = 1
   end
-  pressup()
-  input = {}
-  input.up = true
   for j=1,c do
-    for i=1,MOVEFRAMES do
-      joypad.set(1, input)
-      emu.frameadvance()
-    end
-    for i=1,16 do
-      joypad.set(1, {})
-      emu.frameadvance()
+    starty = memory.readbyte(0x8f)
+    startframe = emu.framecount()
+    for j=1,8 do
+      pressup(8)
+      if memory.readbyte(0x8f) < starty then
+        break
+      end
     end
   end
 end
@@ -222,17 +234,14 @@ function Player.moveleft(self, c)
   if c == nil or c < 1 then 
     c = 1
   end
-  pressleft()
-  input = {}
-  input.left = true
   for j=1,c do
-    for i=1,MOVEFRAMES do
-      joypad.set(1, input)
-      emu.frameadvance()
-    end
-    for i=1,16 do
-      joypad.set(1, {})
-      emu.frameadvance()
+    startx = memory.readbyte(0x8e)
+    startframe = emu.framecount()
+    for j=1,8 do
+      pressleft(8)
+      if memory.readbyte(0x8e) < startx then
+        break
+      end
     end
   end
 end
@@ -241,17 +250,14 @@ function Player.moveright(self, c)
   if c == nil or c < 1 then 
     c = 1
   end
-  pressright()
-  input = {}
-  input.right = true
   for j=1,c do
-    for i=1,MOVEFRAMES do
-      joypad.set(1, input)
-      emu.frameadvance()
-    end
-    for i=1,16 do
-      joypad.set(1, {})
-      emu.frameadvance()
+    startx = memory.readbyte(0x8e)
+    startframe = emu.framecount()
+    for j=1,8 do
+      pressright(8)
+      if memory.readbyte(0x8e) > startx then
+        break
+      end
     end
   end
 end
@@ -363,6 +369,10 @@ end
 
 function Player.heal(self)
   if (AND(memory.readbyte(0xce), 0x1) > 0) then
+    if self.mp < 4 then
+      say("I do not have enough magic to cast heal")
+      return false
+    end
     player:spell(1)
   else
     say("I do not yet have the heal spell")
@@ -455,6 +465,10 @@ end
 
 function Player.healmore(self)
   if (AND(memory.readbyte(0xcf), 0x1) > 0) then
+    if self.mp < 10 then
+      say("I do not have enough magic to cast healmore")
+      return false
+    end
     player:spell(9)
   else
     say("I do not yet have the healmore spell")
@@ -541,18 +555,55 @@ end
 
 function Player.herb (self)
   if self.herbs > 0 then
-    item(1)
+    self:item(1)
     return true
   end
   if cheat.herb_store then
     if (self:add_gold(-24)) then 
       self:add_herb()
-      item(1)
+      self:item(1)
       return true
     end
   end
-  say("I don't have any herbs or enough gold to buy one.")
+  if cheat.herb_store then
+    say("I don't have any herbs or enough gold to buy one.")
+  else
+    say("I don't have any herbs.")
+  end
   return false
+end
+
+function Player.grind(self) 
+  if emu.framecount() - self.last_command > 36000 then
+    if self.grind_action == 0 then
+      self:moveup()
+    elseif self.grind_action == 1 then
+      self:moveleft()
+    elseif self.grind_action == 2 then
+      self:movedown()
+    else
+      self:moveright()
+    end
+    self:cancel()
+    self:heal_thy_self()
+    if in_battle then
+      self:fight()
+      wait(240)
+    end
+    self.grind_action = (self.grind_action + 1) % 4
+  end
+end
+
+function Player.heal_thy_self(self)
+  if self.hp * 3 < self.max_hp then
+    self.quiet = true
+    if not (self:healmore()) then
+      if not (self:heal()) then
+        self:herb()
+      end
+    end
+    self.quiet = false
+  end
 end
 
 Enemy = {
@@ -591,8 +642,27 @@ end
 -- 
 --  Draws any hud elements, such as the enemy hit points
 -- 
-function drawhud() 
+function update()
   enemy:show_hp()
+--   gui.text(8, 16,
+--     string.format( "%3d %3d",
+--       memory.readbyte(0x8e), memory.readbyte(0x8f)
+--     ), "white", "black")
+  if cheat.grind_mode and (emu.framecount() - player.last_command > 36000) then
+    gui.drawbox(0, 0, 60, 15, "black")
+    gui.text(8, 8, "Grind mode", "white", "black")
+  end
+
+  -- create a save state every 10 minutes in case of a crash
+  if (emu.framecount() % 360000) then
+    savestate.create(10)
+  end
+  -- update the player and enemy info every 1/2 second
+  if (emu.framecount() % 15 == 0) then
+    player:update()
+    enemy:update()
+-- player:set_hp(255)
+  end
 end
 
 -- main loop
@@ -602,25 +672,17 @@ if not debug.offline then
 end
 player = Player
 player:update()
+player.last_command = emu.framecount()
 enemy = Enemy
 enemy:update()
-gui.register(drawhud)
+gui.register(update)
 
 while(true) do
-  -- create a save state every 10 minutes in case of a crash
-  if (emu.framecount() % 360000) then
-    savestate.create(10)
-  end
-  -- update the player and enemy info every 1/2 second
-  if (emu.framecount() % 30 == 0) then
-    player:update()
-    enemy:update()
-  end
   if ((player.tile == TILE.STAIRS_UP or player.tile == TILE.STAIRS_DOWN) and
       not (player.last_tile == TILE.STAIRS_UP or 
            player.last_tile == TILE.STAIRS_DOWN)) then
     player.last_tile = player.tile
-    stairs()
+    player:stairs()
   end
   if not debug.offline then
     irc.read()
@@ -628,9 +690,14 @@ while(true) do
       msg = irc.message()
       if msg ~= nil then
         command = string.lower(msg.message)
-        parsecommand(player, command)
+        if (parsecommand(player, command)) then
+          player.last_command = emu.framecount()
+        end
       end
     end
+  end
+  if cheat.grind_mode then
+    player:grind()
   end
   emu.frameadvance()
 end
