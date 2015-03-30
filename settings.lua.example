@@ -12,6 +12,7 @@ debug.offline = false
 
 cheat = {
   herb_store = true, -- buy herbs anywhere
-  enemy_hp = true  -- show enemy hit points
+  enemy_hp = true,  -- show enemy hit points
+  grind_mode = true
 }
 
