@@ -598,6 +598,7 @@ function Player.grind(self)
     self:heal_thy_self()
     if in_battle then
       self:fight()
+			self:cancel()
       wait(240)
     end
     self.grind_action = (self.grind_action + 1) % 4
