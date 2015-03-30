@@ -265,7 +265,7 @@ function parsecommand(player, command)
       elseif string.sub(command, 1, 6) == "search" then
         search()
       elseif string.sub(command, 1, 5) == "spell" then
-        spell()
+        spell(c)
       elseif string.sub(command, 1, 4) == "item" then
         item(c)
       elseif string.sub(command, 1, 4) == "door" then
