@@ -585,6 +585,7 @@ end
 
 function Player.grind(self) 
   if emu.framecount() - self.last_command > 36000 then
+    self:heal_thy_self()
     if self.grind_action == 0 then
       self:moveup()
     elseif self.grind_action == 1 then
@@ -595,7 +596,6 @@ function Player.grind(self)
       self:moveright()
     end
     self:cancel()
-    self:heal_thy_self()
     if in_battle then
       self:fight()
 			self:cancel()
