@@ -675,9 +675,15 @@ function update()
     player:update()
     enemy:update()
   end
+
+  -- down + select => grind mode
+  if memory.readbyte(0x47) == 36 then
+    player.last_command = 0
+  end
 end
 
 -- main loop
+savestate.load(savestate.object(1))
 irc.initialize(irc.settings)
 if not debug.offline then
   irc.connect()
