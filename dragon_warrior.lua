@@ -606,15 +606,21 @@ function Player.grind(self)
 end
 
 function Player.heal_thy_self(self)
+  self.quiet = true
   if self.hp * 3 < self.max_hp then
-    self.quiet = true
     if not (self:healmore()) then
       if not (self:heal()) then
         self:herb()
       end
     end
-    self.quiet = false
+  elseif not in_battle then
+    if self.max_hp - self.hp >= 30 then
+      if not (self:heal()) then
+        self:herb()
+      end
+    end
   end
+  self.quiet = false
 end
 
 Enemy = {
