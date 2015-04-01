@@ -643,7 +643,7 @@ function Enemy.update (self)
     battle_mode(true)
   end
   -- hit points wrap below zero, so check for large increases.
-  if self.hp == 0 or self.change.hp > 150 then
+  if self.hp == 0 or self.change.hp > 100 then
     battle_mode(false)
   end
 
