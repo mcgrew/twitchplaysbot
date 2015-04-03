@@ -2,6 +2,7 @@
 require("irc")
 require("settings")
 require("controls")
+require("map")
 
 TILE = {
   GRASS = 0,
@@ -23,13 +24,11 @@ TILE = {
 
 function commandlist()
   say("General Commands:")
-  say("up#, down#, left#, right#, a, b, select, start")
+  say("up, down, left, right, a, b, select, start")
   say("Overworld Commands:")
-  say("talk, status, stairs, search, spell#, item#, door, take")
+  say("talk, status, stairs, search, spell, item, door, take")
   say("Battle Commands:")
   say("fight, run, spell, item#")
-  say("Menu Commands:")
-  say("pup, pdown, pleft, pright")
 end
 
 function say(str) 
@@ -39,7 +38,7 @@ function say(str)
 end
 
 function parsecommand(player, command)
-      c = tonumber(string.sub(command, -2))
+      local c = tonumber(string.sub(command, -2))
       if c == nil then
         c = tonumber(string.sub(command, -1))
       end
@@ -51,14 +50,6 @@ function parsecommand(player, command)
         player:moveleft(c)
       elseif string.sub(command, 1, 5) == "right" then
         player:moveright(c)
-      elseif string.sub(command, 1, 3) == "pup" then
-        pressup()
-      elseif string.sub(command, 1, 5) == "pdown" then
-        pressdown()
-      elseif string.sub(command, 1, 5) == "pleft" then
-        pressleft()
-      elseif string.sub(command, 1, 6) == "pright" then
-        pressright()
       elseif command == "a" then
         pressa(2)
       elseif command == "b" then
@@ -124,14 +115,14 @@ end
 
 in_battle = false
 function battle_mode (b)
-	if b ~= nil then
-		in_battle = b
-		if not b then
-			-- overwrite monster hp to avoid confusion
-			memory.writebyte(0xe2, 0)
-		end
-	end
-	return in_battle
+  if b ~= nil then
+    in_battle = b
+    if not b then
+      -- overwrite monster hp to avoid confusion
+      memory.writebyte(0xe2, 0)
+    end
+  end
+  return in_battle
 end
 
 Player = {
@@ -151,6 +142,7 @@ Player = {
   keys = 0,
   map_x = 0,
   map_y = 0,
+  current_map = 0,
   tile = 0,
   last_tile = 0,
 
@@ -162,11 +154,11 @@ Player = {
 function Player.update (self)
 
   -- read in the values from memory.
-  level = memory.readbyte(0xc7)
-  hp = memory.readbyte(0xc5)
-  mp = memory.readbyte(0xc6)
-  gold = memory.readbyte(0xbd) * 256 + memory.readbyte(0xbc)
-  experience = memory.readbyte(0xbb) * 256 + memory.readbyte(0xba)
+  local level = memory.readbyte(0xc7)
+  local hp = memory.readbyte(0xc5)
+  local mp = memory.readbyte(0xc6)
+  local gold = memory.readbyte(0xbd) * 256 + memory.readbyte(0xbc)
+  local experience = memory.readbyte(0xbb) * 256 + memory.readbyte(0xba)
 
   -- update the changes.
   self.change.level = level - self.level
@@ -189,13 +181,16 @@ function Player.update (self)
 
   self.last_tile = self.tile
   self.tile = memory.readbyte(0xe0)
-  map_x = memory.readbyte(0x8e)
-  map_y = memory.readbyte(0x8f)
+  local map_x = memory.readbyte(0x8e)
+  local map_y = memory.readbyte(0x8f)
   if (map_x ~= self.map_x or map_y ~= self.map_y) then
     battle_mode(false)
   end
   self.map_x = map_x
   self.map_y = map_y
+  self.current_map = memory.readbyte(0x45)
+
+  map[map_x+1][map_y+1] = self.tile 
 
 end
 
@@ -208,35 +203,60 @@ function Player.cancel(self, c)
   end
 end
 
+function Player.check_cursor(self, x, y)
+  local result = memory.readbyte(0xd8) == x and memory.readbyte(0xd9) == y
+  if result then
+    print("true")
+  else
+    print(string.format("false: (%d,%d)", memory.readbyte(0xd8), memory.readbyte(0xd9)))
+  end
+  return result
+end
+
 function Player.movedown(self, c)
   if c == nil or c < 1 then 
     c = 1
   end
+  local input = {}
+  input.down = true
   for j=1,c do
-    starty = memory.readbyte(0x8f)
-    startframe = emu.framecount()
-    for j=1,8 do
-      pressdown(8)
-      if memory.readbyte(0x8f) > starty then
+    local starty = memory.readbyte(0x8f)
+    local startcursor = memory.readbyte(0xd9)
+    for i=1,45 do
+      joypad.set(1, input)
+      emu.frameadvance()
+      if memory.readbyte(0x8f) > starty or memory.readbyte(0xd9) > startcursor then
         break
       end
     end
+		-- we were unable to move, give up
+		if memory.readbyte(0x8f) == starty and memory.readbyte(0xd9) == startcursor then
+			return false
+		end
   end
+	return true
 end
 
 function Player.moveup(self, c)
   if c == nil or c < 1 then 
     c = 1
   end
+  local input = {}
+  input.up = true
   for j=1,c do
-    starty = memory.readbyte(0x8f)
-    startframe = emu.framecount()
-    for j=1,8 do
-      pressup(8)
-      if memory.readbyte(0x8f) < starty then
+    local starty = memory.readbyte(0x8f)
+    local startcursor = memory.readbyte(0xd9)
+    for i=1,45 do
+      joypad.set(1, input)
+      emu.frameadvance()
+      if memory.readbyte(0x8f) < starty or memory.readbyte(0xd9) < startcursor then
         break
       end
     end
+		-- we were unable to move, give up
+		if memory.readbyte(0x8f) == starty and memory.readbyte(0xd9) == startcursor then
+			return false
+		end
   end
 end
 
@@ -244,15 +264,22 @@ function Player.moveleft(self, c)
   if c == nil or c < 1 then 
     c = 1
   end
+  local input = {}
+  input.left = true
   for j=1,c do
-    startx = memory.readbyte(0x8e)
-    startframe = emu.framecount()
-    for j=1,8 do
-      pressleft(8)
-      if memory.readbyte(0x8e) < startx then
+    local startx = memory.readbyte(0x8e)
+    local startcursor = memory.readbyte(0xd8)
+    for i=1,45 do
+      joypad.set(1, input)
+      emu.frameadvance()
+      if memory.readbyte(0x8e) < startx or memory.readbyte(0xd8) < startcursor then
         break
       end
     end
+		-- we were unable to move, give up
+		if memory.readbyte(0x8e) == startx and memory.readbyte(0xd8) == startcursor then
+			return false
+		end
   end
 end
 
@@ -260,15 +287,22 @@ function Player.moveright(self, c)
   if c == nil or c < 1 then 
     c = 1
   end
+  local input = {}
+  input.right = true
   for j=1,c do
-    startx = memory.readbyte(0x8e)
-    startframe = emu.framecount()
-    for j=1,8 do
-      pressright(8)
-      if memory.readbyte(0x8e) > startx then
+    local startx = memory.readbyte(0x8e)
+    local startcursor = memory.readbyte(0xd8)
+    for i=1,45 do
+      joypad.set(1, input)
+      emu.frameadvance()
+      if memory.readbyte(0x8e) > startx or memory.readbyte(0xd8) > startcursor then
         break
       end
     end
+		-- we were unable to move, give up
+		if memory.readbyte(0x8e) == startx and memory.readbyte(0xd8) == startcursor then
+			return false
+		end
   end
 end
 
@@ -276,15 +310,26 @@ function Player.talk(self)
   self:cancel()
   pressa(2)
   wait(30)
+  if not self:check_cursor(0,0) then
+    self:cancel()
+    return false
+  end
   pressa(2)
+  return true
 end
 
 function Player.status(self) 
   self:cancel()
   pressa(2)
   wait(30)
-  pressdown()
+  self:movedown(1)
+  wait(6)
+  if not self:check_cursor(0,1) then
+    self:cancel()
+    return false
+  end
   pressa(2)
+  return true
 end
 
 
@@ -292,9 +337,14 @@ function Player.stairs(self)
   self:cancel()
   pressa(2)
   wait(30)
-  pressdown()
-  pressdown()
+   self:movedown(2)
+  wait(6)
+  if not self:check_cursor(0,2) then
+    self:cancel()
+    return false
+  end
   pressa(2)
+  return true
 end
 
 
@@ -302,43 +352,73 @@ function Player.search(self)
   self:cancel()
   pressa(2)
   wait(30)
-  pressdown()
-  pressdown()
-  pressdown()
+  self:movedown(3)
+  wait(6)
+  if not self:check_cursor(0,3) then
+    self:cancel()
+    return false
+  end
   pressa(2)
+  return true
 end
 
 
 function Player.spell(self, c) 
-  self:cancel(5)
-  pressa(2)
+  self:cancel()
+  if not in_battle then
+    pressa(2)
+  end
   wait(30)
-  pressright()
+  self:moveright()
+  wait(6)
+  if not self:check_cursor(1,0) then
+    self:cancel()
+    return false
+  end
   pressa(2)
   wait(30)
   if c ~= nil then
     for j=1,c-1 do
-      pressdown()
+      self:movedown()
     end
+    if not self:check_cursor(0,c-1) then
+      self:cancel()
+      return false
+    end
+    wait(6)
     pressa(2)
   end
+  return true
 end
 
 
 function Player.item(self, c) 
-  self:cancel(5)
-  pressa(2)
+  self:cancel()
+  if not in_battle then
+    pressa(2)
+  end
   wait(30)
-  pressdown()
-  pressright()
+  self:movedown()
+  self:moveright()
+  wait(6)
+  if not self:check_cursor(1,1) then
+    self:cancel()
+    return false
+  end
   pressa(2)
   wait(30)
   if c ~= nil then
     for j=1,c-1 do
-      pressdown()
+      self:movedown()
     end
+    if not self:check_cursor(0,c-1) then
+      self:cancel()
+      return
+    end
+    wait(6)
     pressa(2)
   end
+  return true
 end
 
 
@@ -346,10 +426,15 @@ function Player.door(self)
   self:cancel(5)
   pressa(2)
   wait(30)
-  pressdown()
-  pressdown()
-  pressright()
+  self:movedown(2)
+  self:moveright()
+  wait(6)
+  if not self:check_cursor(1,2) then
+    self:cancel()
+    return
+  end
   pressa(2)
+  return true
 end
 
 
@@ -357,11 +442,15 @@ function Player.take(self)
   self:cancel()
   pressa(2)
   wait(30)
-  pressdown()
-  pressdown()
-  pressdown()
-  pressright()
+  self:movedown(3)
+  self:moveright()
+  wait(6)
+  if not self:check_cursor(1,3) then
+    self:cancel()
+    return
+  end
   pressa(2)
+  return true
 end
 
 function Player.fight(self) 
@@ -373,8 +462,14 @@ end
 function Player.run(self) 
   self:cancel()
   wait(30)
-  pressdown()
+  self:movedown()
+  wait(6)
+  if not self:check_cursor(0,1) then
+    self:cancel()
+    return
+  end
   pressa(2)
+  return true
 end
 
 function Player.heal(self)
@@ -383,7 +478,7 @@ function Player.heal(self)
       say("I do not have enough magic to cast heal")
       return false
     end
-    player:spell(1)
+    self:spell(1)
   else
     say("I do not yet have the heal spell")
     return false
@@ -397,7 +492,7 @@ function Player.hurt(self)
       say("Hurt is a battle spell. I are not in battle.")
       return false
     end
-    player:spell(2)
+    self:spell(2)
   else
     say("I do not yet have the hurt spell")
     return false
@@ -411,7 +506,7 @@ function Player.sleep(self)
       say("Sleep is a battle spell. I are not in battle.")
       return false
     end
-    player:spell(3)
+    self:spell(3)
   else
     say("I do not yet have the sleep spell")
     return false
@@ -421,7 +516,7 @@ end
 
 function Player.radiant(self)
   if (AND(memory.readbyte(0xce), 0x8) > 0) then
-    player:spell(4)
+    self:spell(4)
   else
     say("I do not yet have the radiant spell")
     return false
@@ -435,7 +530,7 @@ function Player.stopspell(self)
       say("Stopspell is a battle spell. I are not in battle.")
       return false
     end
-    player:spell(5)
+    self:spell(5)
   else
     say("I do not yet have the stopspell spell")
     return false
@@ -445,7 +540,7 @@ end
 
 function Player.outside(self)
   if (AND(memory.readbyte(0xce), 0x20) > 0) then
-    player:spell(6)
+    self:spell(6)
   else
     say("I do not yet have the outside spell")
     return false
@@ -455,7 +550,7 @@ end
 
 function Player.return_(self)
   if (AND(memory.readbyte(0xce), 0x40) > 0) then
-    player:spell(7)
+    self:spell(7)
   else
     say("I do not yet have the return spell")
     return false
@@ -465,7 +560,7 @@ end
 
 function Player.repel(self)
   if (AND(memory.readbyte(0xce), 0x80) > 0) then
-    player:spell(8)
+    self:spell(8)
   else
     say("I do not yet have the repel spell")
     return false
@@ -479,7 +574,7 @@ function Player.healmore(self)
       say("I do not have enough magic to cast healmore")
       return false
     end
-    player:spell(9)
+    self:spell(9)
   else
     say("I do not yet have the healmore spell")
     return false
@@ -493,7 +588,7 @@ function Player.hurtmore(self)
       say("Hurtmore is a battle spell. I are not in battle.")
       return false
     end
-    player:spell(10)
+    self:spell(10)
   else
     say("I do not yet have the hurtmore spell")
     return false
@@ -598,7 +693,7 @@ function Player.grind(self)
     self:cancel()
     if in_battle then
       self:fight()
-			self:cancel()
+      self:cancel()
       wait(240)
     end
     self.grind_action = (self.grind_action + 1) % 4
@@ -661,20 +756,42 @@ end
 -- 
 function overlay()
   enemy:show_hp()
---   gui.text(8, 16,
---     string.format( "%3d %3d",
---       memory.readbyte(0x8e), memory.readbyte(0x8f)
---     ), "white", "black")
   if cheat.grind_mode and (emu.framecount() - player.last_command > 36000) then
     gui.drawbox(0, 0, 60, 15, "black")
     gui.text(8, 8, "Grind mode", "white", "black")
   end
+
+  if debug.hud then
+    gui.text(8, 16,
+      string.format( "Cursor: [%3d,%3d]",
+        memory.readbyte(0xd8), memory.readbyte(0xd9)
+      ), "white", "black")
+    gui.text(8, 24,
+      string.format( "Map: [%3d,%3d,%3d]",
+        memory.readbyte(0x45), memory.readbyte(0x8e), memory.readbyte(0x8f)
+      ), "white", "black")
+
+    gui.text(8, 32,
+      string.format( "Player Pos: [%3d,%3d]",
+        memory.readbyte(0x3a), memory.readbyte(0x3b)
+      ), "white", "black")
+
+    gui.text(8, 40, 
+      string.format( "Frame:  %6d", emu.framecount()), 
+      "white", "black")
+  end
+
+  if (emu.framecount() % 360 == 0) then
+  end
+--  local zone = math.floor(memory.readbyte(0x3b) / 15) * 4 + memory.readbyte(0x3a) / 30
+--  gui.text(8, 32, string.format( "Zone %3d", zone), "white", "black")
+
 end
 
 function update()
   -- create a save state every 10 minutes in case of a crash
   if (emu.framecount() % 3600 == 0) then
-    savestate.persist(savestate.object(1))
+--    savestate.persist(savestate.object(1))
   end
   -- update the player and enemy info every 1/4 second
   if (emu.framecount() % 15 == 0) then
@@ -685,6 +802,10 @@ function update()
   -- down + select => grind mode
   if memory.readbyte(0x47) == 36 then
     player.last_command = 0
+  end
+
+  if cheat.repulsive then
+    memory.writebyte(0xdb, 0xff)
   end
 end
 
