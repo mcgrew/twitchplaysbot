@@ -100,13 +100,19 @@ function parsecommand(player, command)
         player:repel()
       elseif string.sub(command, 1, 4) == "herb" then
         player:herb()
-      elseif string.sub(command, 1, 6) == "!grind" then
-        player.last_command = 0
-        return false
       elseif string.sub(command, 1, 8) == "!command" then
         commandlist()
       elseif string.sub(command, 1, 5) == "!help" then
         commandlist()
+      elseif string.sub(command, 1, 11) == "!autobattle" then
+				player:set_mode("autobattle")
+      elseif string.sub(command, 1, 10) == "!fraidycat" then
+			  player:set_mode("fraidycat")
+      elseif string.sub(command, 1, 10) == "!manual" then
+			  player:set_mode("manual")
+      elseif string.sub(command, 1, 6) == "!grind" then
+			  player:set_mode("grind")
+				return false
       else
         return false
       end
@@ -148,7 +154,13 @@ Player = {
 
   last_command = 0,
   grind_action = 0,
-  quiet = false
+  quiet = false,
+	mode = {
+		grind = false,
+		auto_battle = false,
+		fraidy_cat = false,
+		manual = true
+	}
 }
 
 function Player.update (self)
@@ -204,13 +216,7 @@ function Player.cancel(self, c)
 end
 
 function Player.check_cursor(self, x, y)
-  local result = memory.readbyte(0xd8) == x and memory.readbyte(0xd9) == y
-  if result then
-    print("true")
-  else
-    print(string.format("false: (%d,%d)", memory.readbyte(0xd8), memory.readbyte(0xd9)))
-  end
-  return result
+  return memory.readbyte(0xd8) == x and memory.readbyte(0xd9) == y
 end
 
 function Player.movedown(self, c)
@@ -413,7 +419,7 @@ function Player.item(self, c)
     end
     if not self:check_cursor(0,c-1) then
       self:cancel()
-      return
+      return false
     end
     wait(6)
     pressa(2)
@@ -431,7 +437,7 @@ function Player.door(self)
   wait(6)
   if not self:check_cursor(1,2) then
     self:cancel()
-    return
+    return false
   end
   pressa(2)
   return true
@@ -447,7 +453,7 @@ function Player.take(self)
   wait(6)
   if not self:check_cursor(1,3) then
     self:cancel()
-    return
+    return false
   end
   pressa(2)
   return true
@@ -455,21 +461,28 @@ end
 
 function Player.fight(self) 
   self:cancel()
-  wait(30)
-  pressa(2)
+	if in_battle then
+		wait(30)
+		pressa(2)
+		return true
+	end
+	return false
 end
 
 function Player.run(self) 
   self:cancel()
-  wait(30)
-  self:movedown()
-  wait(6)
-  if not self:check_cursor(0,1) then
-    self:cancel()
-    return
-  end
-  pressa(2)
-  return true
+	if in_battle then
+		wait(30)
+		self:movedown()
+		wait(6)
+		if not self:check_cursor(0,1) then
+			self:cancel()
+			return false
+		end
+		pressa(2)
+		return true
+	end
+	return false
 end
 
 function Player.heal(self)
@@ -678,44 +691,86 @@ function Player.herb (self)
   return false
 end
 
+function Player.grind_move(self)
+	if self.grind_action == 0 then
+		self:moveup()
+	elseif self.grind_action == 1 then
+		self:moveleft()
+	elseif self.grind_action == 2 then
+		self:movedown()
+	else
+		self:moveright()
+	end
+	if not in_battle then
+		self.grind_action = (self.grind_action + 1) % 4
+	end
+end
+
 function Player.grind(self) 
-  if emu.framecount() - self.last_command > 36000 then
+	if self.mode.grind then
     self:heal_thy_self()
-    if self.grind_action == 0 then
-      self:moveup()
-    elseif self.grind_action == 1 then
-      self:moveleft()
-    elseif self.grind_action == 2 then
-      self:movedown()
-    else
-      self:moveright()
-    end
-    self:cancel()
-    if in_battle then
-      self:fight()
-      self:cancel()
-      wait(240)
-    end
-    self.grind_action = (self.grind_action + 1) % 4
-  end
+		self:grind_move()
+	end
+	if in_battle then
+		self:grind_move()
+		if self.mode.grind or self.mode.auto_battle then
+			if self:heal_thy_self() then
+				wait(120)
+			end
+			self:fight()
+			self:cancel() -- in case the enemy runs immediately
+			wait(200)
+		end
+		if self.mode.fraidy_cat then
+			if not self:heal_thy_self() then
+				self:run()
+			end
+			wait(200)
+		end
+	end
+end
+
+function Player.set_mode(self, mode)
+	if mode == "autobattle" then
+		self.mode.grind = false
+		self.mode.auto_battle = true
+		self.mode.fraidy_cat = false
+	elseif mode == "fraidycat" then
+		self.mode.grind = false
+		self.mode.auto_battle = false
+		self.mode.fraidy_cat = true
+	elseif mode == "manual" then
+		self.mode.grind = false
+		self.mode.auto_battle = false
+		self.mode.fraidy_cat = false
+	elseif cheat.grind_mode and mode == "grind" then
+		self.mode.grind = true
+		self.mode.auto_battle = false
+		self.mode.fraidy_cat = false
+	end
 end
 
 function Player.heal_thy_self(self)
   self.quiet = true
   if self.hp * 3 < self.max_hp then
-    if not (self:healmore()) then
-      if not (self:heal()) then
-        self:herb()
-      end
+    if self:healmore() then
+			return true
+		elseif self:herb() then
+		  return true
+		elseif self:heal() then 
+		  return true
     end
   elseif not in_battle then
     if self.max_hp - self.hp >= 30 then
-      if not (self:heal()) then
-        self:herb()
+      if self:herb() then
+				return true
+			elseif self:heal() then
+				return true
       end
     end
   end
   self.quiet = false
+	return false
 end
 
 Enemy = {
@@ -737,6 +792,12 @@ function Enemy.update (self)
   if not in_battle and self.change.hp ~= 0 then
     battle_mode(true)
   end
+
+	-- update grind mode if needed
+  if not debug.offline and cheat.grind_mode and not player.mode.grind and 
+		emu.framecount() - player.last_command > 36000 then
+		player:set_mode("grind")
+	end
   -- hit points wrap below zero, so check for large increases.
   if self.hp == 0 or self.change.hp > 100 then
     battle_mode(false)
@@ -756,29 +817,37 @@ end
 -- 
 function overlay()
   enemy:show_hp()
-  if cheat.grind_mode and (emu.framecount() - player.last_command > 36000) then
+  if cheat.grind_mode and player.mode.grind then
     gui.drawbox(0, 0, 60, 15, "black")
     gui.text(8, 8, "Grind mode", "white", "black")
   end
+  if player.mode.auto_battle then
+    gui.drawbox(0, 0, 82, 15, "black")
+    gui.text(8, 8, "Auto-battle mode", "white", "black")
+  end
+  if player.mode.fraidy_cat then
+    gui.drawbox(0, 0, 82, 15, "black")
+    gui.text(8, 8, "Fraidy-cat mode", "white", "black")
+  end
 
   if debug.hud then
-    gui.text(8, 16,
-      string.format( "Cursor: [%3d,%3d]",
-        memory.readbyte(0xd8), memory.readbyte(0xd9)
-      ), "white", "black")
+    gui.text(8, 16, 
+      string.format( "Frame:  %d", emu.framecount()), 
+      "white", "black")
     gui.text(8, 24,
       string.format( "Map: [%3d,%3d,%3d]",
         memory.readbyte(0x45), memory.readbyte(0x8e), memory.readbyte(0x8f)
       ), "white", "black")
 
-    gui.text(8, 32,
-      string.format( "Player Pos: [%3d,%3d]",
-        memory.readbyte(0x3a), memory.readbyte(0x3b)
-      ), "white", "black")
+--     gui.text(8, 32,
+--       string.format( "Player Pos: [%3d,%3d]",
+--         memory.readbyte(0x3a), memory.readbyte(0x3b)
+--       ), "white", "black")
+--     gui.text(8, 40,
+--       string.format( "Cursor: [%3d,%3d]",
+--         memory.readbyte(0xd8), memory.readbyte(0xd9)
+----        ), "white", "black")
 
-    gui.text(8, 40, 
-      string.format( "Frame:  %6d", emu.framecount()), 
-      "white", "black")
   end
 
   if (emu.framecount() % 360 == 0) then
@@ -838,13 +907,12 @@ while(true) do
         command = string.lower(msg.message)
         if (parsecommand(player, command)) then
           player.last_command = emu.framecount()
+					player.mode.grind = false
         end
       end
     end
   end
-  if cheat.grind_mode then
-    player:grind()
-  end
+	player:grind()
   emu.frameadvance()
 end
 
