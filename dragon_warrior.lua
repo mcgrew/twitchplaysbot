@@ -104,14 +104,14 @@ function parsecommand(player, command)
       elseif string.sub(command, 1, 5) == "!help" then
         commandlist()
       elseif string.sub(command, 1, 11) == "!autobattle" then
-				player:set_mode("autobattle")
+        player:set_mode("autobattle")
       elseif string.sub(command, 1, 10) == "!fraidycat" then
-			  player:set_mode("fraidycat")
+        player:set_mode("fraidycat")
       elseif string.sub(command, 1, 10) == "!manual" then
-			  player:set_mode("manual")
+        player:set_mode("manual")
       elseif string.sub(command, 1, 6) == "!grind" then
-			  player:set_mode("grind")
-				return false
+        player:set_mode("grind")
+        return false
       else
         return false
       end
@@ -154,12 +154,12 @@ Player = {
   last_command = 0,
   grind_action = 0,
   quiet = false,
-	mode = {
-		grind = false,
-		auto_battle = false,
-		fraidy_cat = false,
-		manual = true
-	}
+  mode = {
+    grind = false,
+    auto_battle = false,
+    fraidy_cat = false,
+    manual = true
+  }
 }
 
 function Player.update (self)
@@ -234,12 +234,12 @@ function Player.movedown(self, c)
         break
       end
     end
-		-- we were unable to move, give up
-		if memory.readbyte(0x8f) == starty and memory.readbyte(0xd9) == startcursor then
-			return false
-		end
+    -- we were unable to move, give up
+    if memory.readbyte(0x8f) == starty and memory.readbyte(0xd9) == startcursor then
+      return false
+    end
   end
-	return true
+  return true
 end
 
 function Player.moveup(self, c)
@@ -258,10 +258,10 @@ function Player.moveup(self, c)
         break
       end
     end
-		-- we were unable to move, give up
-		if memory.readbyte(0x8f) == starty and memory.readbyte(0xd9) == startcursor then
-			return false
-		end
+    -- we were unable to move, give up
+    if memory.readbyte(0x8f) == starty and memory.readbyte(0xd9) == startcursor then
+      return false
+    end
   end
 end
 
@@ -281,10 +281,10 @@ function Player.moveleft(self, c)
         break
       end
     end
-		-- we were unable to move, give up
-		if memory.readbyte(0x8e) == startx and memory.readbyte(0xd8) == startcursor then
-			return false
-		end
+    -- we were unable to move, give up
+    if memory.readbyte(0x8e) == startx and memory.readbyte(0xd8) == startcursor then
+      return false
+    end
   end
 end
 
@@ -304,10 +304,10 @@ function Player.moveright(self, c)
         break
       end
     end
-		-- we were unable to move, give up
-		if memory.readbyte(0x8e) == startx and memory.readbyte(0xd8) == startcursor then
-			return false
-		end
+    -- we were unable to move, give up
+    if memory.readbyte(0x8e) == startx and memory.readbyte(0xd8) == startcursor then
+      return false
+    end
   end
 end
 
@@ -460,28 +460,28 @@ end
 
 function Player.fight(self) 
   self:cancel()
-	if in_battle then
-		wait(30)
-		pressa(2)
-		return true
-	end
-	return false
+  if in_battle then
+    wait(30)
+    pressa(2)
+    return true
+  end
+  return false
 end
 
 function Player.run(self) 
   self:cancel()
-	if in_battle then
-		wait(30)
-		self:movedown()
-		wait(6)
-		if not self:check_cursor(0,1) then
-			self:cancel()
-			return false
-		end
-		pressa(2)
-		return true
-	end
-	return false
+  if in_battle then
+    wait(30)
+    self:movedown()
+    wait(6)
+    if not self:check_cursor(0,1) then
+      self:cancel()
+      return false
+    end
+    pressa(2)
+    return true
+  end
+  return false
 end
 
 function Player.heal(self)
@@ -691,85 +691,85 @@ function Player.herb (self)
 end
 
 function Player.grind_move(self)
-	if self.grind_action == 0 then
-		self:moveup()
-	elseif self.grind_action == 1 then
-		self:moveleft()
-	elseif self.grind_action == 2 then
-		self:movedown()
-	else
-		self:moveright()
-	end
-	if not in_battle then
-		self.grind_action = (self.grind_action + 1) % 4
-	end
+  if self.grind_action == 0 then
+    self:moveup()
+  elseif self.grind_action == 1 then
+    self:moveleft()
+  elseif self.grind_action == 2 then
+    self:movedown()
+  else
+    self:moveright()
+  end
+  if not in_battle then
+    self.grind_action = (self.grind_action + 1) % 4
+  end
 end
 
 function Player.grind(self) 
-	if self.mode.grind then
+  if self.mode.grind then
     self:heal_thy_self()
-		self:grind_move()
-	end
-	if in_battle then
-		self:grind_move()
-		if self.mode.grind or self.mode.auto_battle then
-			if self:heal_thy_self() then
-				wait(120)
-			end
-			self:fight()
-			self:cancel() -- in case the enemy runs immediately
-			wait(200)
-		end
-		if self.mode.fraidy_cat then
-			if not self:heal_thy_self() then
-				self:run()
-			end
-			wait(200)
-		end
-	end
+    self:grind_move()
+  end
+  if in_battle then
+    self:grind_move()
+    if self.mode.grind or self.mode.auto_battle then
+      if self:heal_thy_self() then
+        wait(120)
+      end
+      self:fight()
+      self:cancel() -- in case the enemy runs immediately
+      wait(200)
+    end
+    if self.mode.fraidy_cat then
+      if not self:heal_thy_self() then
+        self:run()
+      end
+      wait(200)
+    end
+  end
 end
 
 function Player.set_mode(self, mode)
-	if mode == "autobattle" then
-		self.mode.grind = false
-		self.mode.auto_battle = true
-		self.mode.fraidy_cat = false
-	elseif mode == "fraidycat" then
-		self.mode.grind = false
-		self.mode.auto_battle = false
-		self.mode.fraidy_cat = true
-	elseif mode == "manual" then
-		self.mode.grind = false
-		self.mode.auto_battle = false
-		self.mode.fraidy_cat = false
-	elseif cheat.grind_mode and mode == "grind" then
-		self.mode.grind = true
-		self.mode.auto_battle = false
-		self.mode.fraidy_cat = false
-	end
+  if mode == "autobattle" then
+    self.mode.grind = false
+    self.mode.auto_battle = true
+    self.mode.fraidy_cat = false
+  elseif mode == "fraidycat" then
+    self.mode.grind = false
+    self.mode.auto_battle = false
+    self.mode.fraidy_cat = true
+  elseif mode == "manual" then
+    self.mode.grind = false
+    self.mode.auto_battle = false
+    self.mode.fraidy_cat = false
+  elseif cheat.grind_mode and mode == "grind" then
+    self.mode.grind = true
+    self.mode.auto_battle = false
+    self.mode.fraidy_cat = false
+  end
 end
 
 function Player.heal_thy_self(self)
   self.quiet = true
   if self.hp * 3 < self.max_hp then
     if self:healmore() then
-			return true
-		elseif self:herb() then
-		  return true
-		elseif self:heal() then 
-		  return true
+      return true
+    elseif self:herb() then
+      return true
+    elseif self:heal() then 
+      return true
     end
   elseif not in_battle then
     if self.max_hp - self.hp >= 30 then
       if self:herb() then
-				return true
-			elseif self:heal() then
-				return true
+        return true
+      elseif self:heal() then
+        return true
       end
     end
   end
   self.quiet = false
-	return false
+  return false
 end
 
 Enemy = {
@@ -792,11 +792,11 @@ function Enemy.update (self)
     battle_mode(true)
   end
 
-	-- update grind mode if needed
+  -- update grind mode if needed
   if not debug.offline and cheat.grind_mode and not player.mode.grind and 
-		emu.framecount() - player.last_command > 36000 then
-		player:set_mode("grind")
-	end
+    emu.framecount() - player.last_command > 36000 then
+    player:set_mode("grind")
+  end
   -- hit points wrap below zero, so check for large increases.
   if self.hp == 0 or self.change.hp > 100 then
     battle_mode(false)
@@ -906,12 +906,12 @@ while(true) do
         command = string.lower(msg.message)
         if (parsecommand(player, command)) then
           player.last_command = emu.framecount()
-					player.mode.grind = false
+          player.mode.grind = false
         end
       end
     end
   end
-	player:grind()
+  player:grind()
   emu.frameadvance()
 end
 
