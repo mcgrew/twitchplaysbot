@@ -2,7 +2,6 @@
 require("irc")
 require("settings")
 require("controls")
-require("map")
 
 TILE = {
   GRASS = 0,
@@ -202,7 +201,7 @@ function Player.update (self)
   self.map_y = map_y
   self.current_map = memory.readbyte(0x45)
 
-  map[map_x+1][map_y+1] = self.tile 
+--   map[map_x+1][map_y+1] = self.tile
 
 end
 
