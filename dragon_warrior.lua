@@ -711,8 +711,8 @@ function Player.grind(self)
     self:grind_move()
   end
   if in_battle then
-    self:grind_move()
     if self.mode.grind or self.mode.auto_battle then
+      self:grind_move()
       if self:heal_thy_self() then
         wait(120)
       end
