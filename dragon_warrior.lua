@@ -691,24 +691,26 @@ function Player.herb (self)
 end
 
 function Player.grind_move(self)
-  if self.grind_action == 0 then
-    self:moveup()
-  elseif self.grind_action == 1 then
-    self:moveleft()
-  elseif self.grind_action == 2 then
-    self:movedown()
-  else
-    self:moveright()
-  end
   if not in_battle then
     self.grind_action = (self.grind_action + 1) % 4
+  end
+  if self.grind_action == 0 then
+    return self:moveup()
+  elseif self.grind_action == 1 then
+    return self:moveleft()
+  elseif self.grind_action == 2 then
+    return self:movedown()
+  else
+    return self:moveright()
   end
 end
 
 function Player.grind(self) 
   if self.mode.grind then
     self:heal_thy_self()
-    self:grind_move()
+    if not self:grind_move() then
+      self:cancel()
+    end
   end
   if in_battle then
     if self.mode.grind or self.mode.auto_battle then
