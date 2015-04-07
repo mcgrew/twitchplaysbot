@@ -676,7 +676,7 @@ function Player.herb (self)
     return true
   end
   if cheat.herb_store then
-    if (self:add_gold(-24)) then 
+    if (self:add_gold(-self.level * self.level)) then 
       self:add_herb()
       self:item(1)
       return true
