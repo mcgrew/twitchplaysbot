@@ -2,6 +2,8 @@
 require("irc")
 require("settings")
 require("controls")
+require("map")
+require("mymap")
 
 TILE = {
   GRASS = 0,
@@ -201,7 +203,9 @@ function Player.update (self)
   self.map_y = map_y
   self.current_map = memory.readbyte(0x45)
 
---   map[map_x+1][map_y+1] = self.tile
+  if self.current_map == 1 then
+    map[map_x+1][map_y+1] = 0 -- self.tile
+  end
 
 end
 
@@ -852,6 +856,7 @@ function overlay()
   end
 
   if (emu.framecount() % 360 == 0) then
+    Map.dump()
   end
 --  local zone = math.floor(memory.readbyte(0x3b) / 15) * 4 + memory.readbyte(0x3a) / 30
 --  gui.text(8, 32, string.format( "Zone %3d", zone), "white", "black")
