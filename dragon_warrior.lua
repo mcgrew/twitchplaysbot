@@ -42,13 +42,13 @@ function parsecommand(player, command)
         c = tonumber(string.sub(command, -1))
       end
       if string.sub(command, 1, 2) == "up" then
-        player:moveup(c)
+        player:up(c)
       elseif string.sub(command, 1, 4) == "down" then
-        player:movedown(c)
+        player:down(c)
       elseif string.sub(command, 1, 4) == "left" then
-        player:moveleft(c)
+        player:left(c)
       elseif string.sub(command, 1, 5) == "right" then
-        player:moveright(c)
+        player:right(c)
       elseif command == "a" then
         pressa(2)
       elseif command == "b" then
@@ -218,7 +218,7 @@ function Player.check_cursor(self, x, y)
   return memory.readbyte(0xd8) == x and memory.readbyte(0xd9) == y
 end
 
-function Player.movedown(self, c)
+function Player.down(self, c)
   if c == nil or c < 1 then 
     c = 1
   end
@@ -242,7 +242,7 @@ function Player.movedown(self, c)
   return true
 end
 
-function Player.moveup(self, c)
+function Player.up(self, c)
   if c == nil or c < 1 then 
     c = 1
   end
@@ -265,7 +265,7 @@ function Player.moveup(self, c)
   end
 end
 
-function Player.moveleft(self, c)
+function Player.left(self, c)
   if c == nil or c < 1 then 
     c = 1
   end
@@ -288,7 +288,7 @@ function Player.moveleft(self, c)
   end
 end
 
-function Player.moveright(self, c)
+function Player.right(self, c)
   if c == nil or c < 1 then 
     c = 1
   end
@@ -327,7 +327,7 @@ function Player.status(self)
   self:cancel()
   pressa(2)
   wait(30)
-  self:movedown(1)
+  self:down(1)
   wait(6)
   if not self:check_cursor(0,1) then
     self:cancel()
@@ -342,7 +342,7 @@ function Player.stairs(self)
   self:cancel()
   pressa(2)
   wait(30)
-   self:movedown(2)
+   self:down(2)
   wait(6)
   if not self:check_cursor(0,2) then
     self:cancel()
@@ -357,7 +357,7 @@ function Player.search(self)
   self:cancel()
   pressa(2)
   wait(30)
-  self:movedown(3)
+  self:down(3)
   wait(6)
   if not self:check_cursor(0,3) then
     self:cancel()
@@ -374,7 +374,7 @@ function Player.spell(self, c)
     pressa(2)
   end
   wait(30)
-  self:moveright()
+  self:right()
   wait(6)
   if not self:check_cursor(1,0) then
     self:cancel()
@@ -384,7 +384,7 @@ function Player.spell(self, c)
   wait(30)
   if c ~= nil then
     for j=1,c-1 do
-      self:movedown()
+      self:down()
     end
     if not self:check_cursor(0,c-1) then
       self:cancel()
@@ -403,8 +403,8 @@ function Player.item(self, c)
     pressa(2)
   end
   wait(30)
-  self:movedown()
-  self:moveright()
+  self:down()
+  self:right()
   wait(6)
   if not self:check_cursor(1,1) then
     self:cancel()
@@ -414,7 +414,7 @@ function Player.item(self, c)
   wait(30)
   if c ~= nil then
     for j=1,c-1 do
-      self:movedown()
+      self:down()
     end
     if not self:check_cursor(0,c-1) then
       self:cancel()
@@ -431,8 +431,8 @@ function Player.door(self)
   self:cancel(5)
   pressa(2)
   wait(30)
-  self:movedown(2)
-  self:moveright()
+  self:down(2)
+  self:right()
   wait(6)
   if not self:check_cursor(1,2) then
     self:cancel()
@@ -447,8 +447,8 @@ function Player.take(self)
   self:cancel()
   pressa(2)
   wait(30)
-  self:movedown(3)
-  self:moveright()
+  self:down(3)
+  self:right()
   wait(6)
   if not self:check_cursor(1,3) then
     self:cancel()
@@ -472,7 +472,7 @@ function Player.run(self)
   self:cancel()
   if in_battle then
     wait(30)
-    self:movedown()
+    self:down()
     wait(6)
     if not self:check_cursor(0,1) then
       self:cancel()
@@ -695,13 +695,13 @@ function Player.grind_move(self)
     self.grind_action = (self.grind_action + 1) % 4
   end
   if self.grind_action == 0 then
-    return self:moveup()
+    return self:up()
   elseif self.grind_action == 1 then
-    return self:moveleft()
+    return self:left()
   elseif self.grind_action == 2 then
-    return self:movedown()
+    return self:down()
   else
-    return self:moveright()
+    return self:right()
   end
 end
 
