@@ -33,8 +33,12 @@ function commandlist()
 end
 
 function say(str) 
-  if not player.quiet then
-    irc.send(string.format("PRIVMSG %s :%s", irc.settings.channel, str))
+  if debug.offline then
+    print(string.format("%s\n", str))
+  else
+    if not player.quiet then
+      irc.send(string.format("PRIVMSG %s :%s", irc.settings.channel, str))
+    end
   end
 end
 
@@ -149,6 +153,8 @@ Player = {
   keys = 0,
   map_x = 0,
   map_y = 0,
+  player_x = 0,
+  player_y = 0,
   current_map = 0,
   tile = 0,
   last_tile = 0,
@@ -201,10 +207,13 @@ function Player.update (self)
   end
   self.map_x = map_x
   self.map_y = map_y
+  self.player_x = memory.readbyte(0x3a)
+  self.player_y = memory.readbyte(0x3b)
   self.current_map = memory.readbyte(0x45)
 
-  if self.current_map == 1 then
-    map[map_x+1][map_y+1] = 0 -- self.tile
+  if self.current_map == 1 and not in_battle then
+    -- being in a battle changes the tile (to enemy type?)
+    map:set_tile(self.player_x, self.player_y, self.current_map, self.tile)
   end
 
 end
@@ -804,7 +813,7 @@ function Enemy.update (self)
     player:set_mode("grind")
   end
   -- hit points wrap below zero, so check for large increases.
-  if self.hp == 0 or self.change.hp > 100 then
+  if self.hp == 0 or self.change.hp > 160 then
     battle_mode(false)
   end
 
@@ -837,12 +846,17 @@ function overlay()
 
   if debug.hud then
     gui.text(8, 16, 
-      string.format( "Frame:  %d", emu.framecount()), 
-      "white", "black")
+      string.format( "Frame:  %d", emu.framecount()), "white", "black")
     gui.text(8, 24,
       string.format( "Map: [%3d,%3d,%3d]",
         memory.readbyte(0x45), memory.readbyte(0x8e), memory.readbyte(0x8f)
       ), "white", "black")
+    gui.text(8, 32,
+      string.format( "Map: [%3d,%3d,%3d]",
+        memory.readbyte(0x45), memory.readbyte(0x3a), memory.readbyte(0x3b)
+      ), "white", "black")
+    gui.text(8, 40, 
+      string.format( "Tile:  %d", memory.readbyte(0xe0)), "white", "black")
 
 --     gui.text(8, 32,
 --       string.format( "Player Pos: [%3d,%3d]",
@@ -855,9 +869,6 @@ function overlay()
 
   end
 
-  if (emu.framecount() % 360 == 0) then
-    Map.dump()
-  end
 --  local zone = math.floor(memory.readbyte(0x3b) / 15) * 4 + memory.readbyte(0x3a) / 30
 --  gui.text(8, 32, string.format( "Zone %3d", zone), "white", "black")
 
@@ -867,6 +878,19 @@ function update()
   -- create a save state every 10 minutes in case of a crash
   if (emu.framecount() % 3600 == 0) then
 --    savestate.persist(savestate.object(1))
+    map:dump()
+    -- path test
+--     p = map:path(43, 43, 1, 2, 2, 1)
+--     if (p == nil) then
+--       print("I do not know how to get there")
+--     else
+--       for t=1,500 do
+--         if p[t] == nil then
+--           break
+--         end
+--         print(("X: %d, Y: %d, cost: %d"):format(p[t].x, p[t].y, p[t].cost))
+--       end
+    end
   end
   -- update the player and enemy info every 1/4 second
   if (emu.framecount() % 15 == 0) then
@@ -899,12 +923,13 @@ gui.register(overlay)
 emu.registerafter(update)
 
 while(true) do
-  if ((player.tile == TILE.STAIRS_UP or player.tile == TILE.STAIRS_DOWN) and
-      not (player.last_tile == TILE.STAIRS_UP or 
-           player.last_tile == TILE.STAIRS_DOWN)) then
-    player.last_tile = player.tile
-    player:stairs()
-  end
+  -- auto stairs
+--   if ((player.tile == TILE.STAIRS_UP or player.tile == TILE.STAIRS_DOWN) and
+--       not (player.last_tile == TILE.STAIRS_UP or 
+--            player.last_tile == TILE.STAIRS_DOWN)) then
+--     player.last_tile = player.tile
+--     player:stairs()
+--   end
   if not debug.offline then
     irc.read()
     if irc.messages_size() > 0 then
