@@ -119,12 +119,14 @@ function parsecommand(player, command)
 end
 
 in_battle = false
-function battle_mode (b)
-  if b ~= nil then
-    in_battle = b
-    if not b then
-      -- overwrite monster hp to avoid confusion
-      memory.writebyte(0xe2, 0)
+function battle_mode (battling, reset_enemy_hp)
+  if battling ~= nil then
+    in_battle = battling
+    if not battling then
+      if (reset_enemy_hp == true) then
+        -- overwrite monster hp to avoid confusion
+        enemy:set_hp(0)
+      end
     end
   end
   return in_battle
@@ -194,8 +196,8 @@ function Player.update (self)
   self.tile = memory.readbyte(0xe0)
   local map_x = memory.readbyte(0x8e)
   local map_y = memory.readbyte(0x8f)
-  if (map_x ~= self.map_x or map_y ~= self.map_y) then
-    battle_mode(false)
+  if (in_battle and (map_x ~= self.map_x or map_y ~= self.map_y)) then
+    battle_mode(false, true)
   end
   self.map_x = map_x
   self.map_y = map_y
@@ -791,7 +793,7 @@ function Enemy.update (self)
 
   -- update battle status
   if not in_battle and self.change.hp ~= 0 then
-    battle_mode(true)
+    battle_mode(true, false)
   end
 
   -- update grind mode if needed
@@ -800,8 +802,8 @@ function Enemy.update (self)
     player:set_mode("grind")
   end
   -- hit points wrap below zero, so check for large increases.
-  if self.hp == 0 or self.change.hp > 100 then
-    battle_mode(false)
+  if self.hp == 0 or self.change.hp > 160 then
+    battle_mode(false, false)
   end
 
 end
@@ -813,6 +815,13 @@ function Enemy.show_hp (self)
   end
 end
 
+function Enemy.set_hp(hp)
+  if (hp > 255 or hp < 0) then
+    return false
+  else
+  memory.writebyte(0xe2, hp)
+  return true
+end
 -- 
 --  Draws any hud elements, such as the enemy hit points
 -- 
