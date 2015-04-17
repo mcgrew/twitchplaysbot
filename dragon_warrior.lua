@@ -597,7 +597,7 @@ function Player.healmore(self)
 end
 
 function Player.hurtmore(self)
-  if (AND(memory.readbyte(0xcf), 0x20) > 0) then
+  if (AND(memory.readbyte(0xcf), 0x2) > 0) then
     if not in_battle then
       say("Hurtmore is a battle spell. I are not in battle.")
       return false
