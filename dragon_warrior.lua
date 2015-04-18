@@ -199,6 +199,11 @@ Player = {
 
 function Player.update (self)
 
+  --level cap (20)
+  if self:get_experience() > 26000 then
+    self:set_experience(26000)
+  end
+
   -- read in the values from memory.
   local level = self:get_level()
   local hp = self:get_hp()
@@ -984,11 +989,17 @@ function Player.heal_thy_self(self)
 	local returnvalue = false
   if self:get_hp() * 3 < self:max_hp() then
 		battle_message(strings.lowhp)
-    if self:healmore() or self:herb() or self:heal() then 
+    if self:healmore() then
+      returnvalue = true
+    elseif self:herb() then
+      returnvalue = true
+    elseif self:heal() then 
       returnvalue = true
     end
-  elseif not in_battle and (self:get_level() < 17) then
-		if self:heal() or self:herb() then
+  elseif not in_battle and self:get_hp() + 30 < self:max_hp() and (self:get_level() < 17) then
+		if self:heal() then
+			returnvalue = true
+		elseif self:herb() then
 			returnvalue = true
 		end
   end
