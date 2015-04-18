@@ -12,7 +12,7 @@ strings = {
 		"I suppose he didst not likest me much.",
 		"Comest back here thee coward!",
 		"Oh running away eh? Come back here and fight me! I'll bite your legs off!",
-		"Oh comest on! Why did thee even comest over here if thee were just to runnest away?",
+		"Oh comest on! Why did thee even comest over if thee were just to runnest away?",
 		"He was in quite a hurry.",
 		"That's right! You get on down the road and don't come back!",
 		"Fine, just goest. Leavest me liketh everyone else. Well, excepteth that clingy princess.",
@@ -37,7 +37,7 @@ strings = {
 		"Seriously? That's all you got? Where's the REAL challenger?",
 		"You can't touch this.",
 		"I attack the %s! It's super effective!",
-		"Who has two thumbs and just put you down? This guy!",
+		"Who has two thumbs and just put thee down? This guy!",
 		"Who's the hero? Who is the hero? That's right, I'm the hero."
 
 	},
