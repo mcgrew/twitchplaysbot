@@ -3,7 +3,7 @@ require("map")
 require("mymap")
 
 
-start = map:getnode(43, 43, 1)
+start = map:getnode(39, 40, 1)
 goal = map:getnode( 2,  2, 1)
 
 p = path(start, goal, map.map, false, is_valid)

@@ -167,7 +167,10 @@ Player = {
     auto_battle = false,
     fraidy_cat = false,
     manual = true
-  }
+  },
+  path = nil,
+  path_pointer = 1,
+  destination = nil
 }
 
 function Player.update (self)
@@ -744,6 +747,51 @@ function Player.grind(self)
   end
 end
 
+function Player.go_to(self, x, y, m)
+  self.path = map:path(self.map_x, self.map_y, self.current_map, x, y, m)
+  if self.path == nil then
+    say("I don't know how to get there. Little help?")
+    self.destination = nil
+  else
+    self.destination = { x = x, y = y, m = m }
+    self.path_pointer = 2
+  end
+end
+
+function Player.follow_path(self)
+  local map_x = memory.readbyte(0x8e)
+  local map_y = memory.readbyte(0x8f)
+  if (self.path ~= nil and self.destination ~= nil) then
+    local node = self.path[self.path_pointer]
+    if node == nil then 
+      return 
+    end
+    if (node.x == map_x and node.y == map_y) then
+      self.path_pointer = self.path_pointer + 1
+      return 
+    end
+    if (math.abs(map_x - node.x) + math.abs(map_y - node.y) > 1) then
+       self:go_to(self.destination.x, self.destination.y, self.destination.m)
+       return
+    end
+    print(("Next: X %d, Y %d"):format(node.x, node.y))
+    self.path_pointer = self.path_pointer + 1
+    -- this could be more elegant/efficient
+    if     (map_x - node.x ==  1) then
+      self:left()
+    elseif (map_x - node.x == -1) then
+      self:right()
+    elseif (map_y - node.y ==  1) then
+      self:up()
+    elseif (map_y - node.y == -1) then
+      self:down()
+    end
+  end
+end
+
+function Player.go_to_name(self, location)
+end
+
 function Player.set_mode(self, mode)
   if mode == "autobattle" then
     self.mode.grind = false
@@ -852,11 +900,20 @@ function overlay()
         memory.readbyte(0x45), memory.readbyte(0x8e), memory.readbyte(0x8f)
       ), "white", "black")
     gui.text(8, 32,
-      string.format( "Map: [%3d,%3d,%3d]",
+      string.format( "Player: [%3d,%3d,%3d]",
         memory.readbyte(0x45), memory.readbyte(0x3a), memory.readbyte(0x3b)
       ), "white", "black")
     gui.text(8, 40, 
       string.format( "Tile:  %d", memory.readbyte(0xe0)), "white", "black")
+    if player.path ~= nil then
+      local pathnode = player.path[player.path_pointer]
+      if pathnode ~= nil and pathnode.m ~= nil and pathnode.x ~= nil and pathnode.y ~= nil then
+        gui.text(8, 48,
+          string.format( "Nextnode: [%3d,%3d,%3d]",
+            pathnode.m, pathnode.x, pathnode.y
+          ), "white", "black")
+      end
+    end
 
 --     gui.text(8, 32,
 --       string.format( "Player Pos: [%3d,%3d]",
@@ -876,22 +933,14 @@ end
 
 function update()
   -- create a save state every 10 minutes in case of a crash
-  if (emu.framecount() % 3600 == 0) then
---    savestate.persist(savestate.object(1))
+  if (emu.framecount() % 1000 == 0) then
     map:dump()
-    -- path test
---     p = map:path(43, 43, 1, 2, 2, 1)
---     if (p == nil) then
---       print("I do not know how to get there")
---     else
---       for t=1,500 do
---         if p[t] == nil then
---           break
---         end
---         print(("X: %d, Y: %d, cost: %d"):format(p[t].x, p[t].y, p[t].cost))
---       end
-    end
+    print(("Map dumped at %d"):format(emu.framecount()))
   end
+--   if (emu.framecount() % 3600 == 0) then
+--    savestate.persist(savestate.object(1))
+    -- path test
+--   end
   -- update the player and enemy info every 1/4 second
   if (emu.framecount() % 15 == 0) then
     player:update()
@@ -919,6 +968,7 @@ player:update()
 player.last_command = emu.framecount()
 enemy = Enemy
 enemy:update()
+player:go_to( 83, 113, 1)
 gui.register(overlay)
 emu.registerafter(update)
 
@@ -944,6 +994,7 @@ while(true) do
     end
   end
   player:grind()
+  player:follow_path()
   emu.frameadvance()
 end
 
