@@ -224,6 +224,12 @@ function Player.update (self)
     map:set_tile(self.player_x, self.player_y, self.current_map, self.tile)
   end
 
+  -- update grind mode if needed
+  if not debug.offline and cheat.grind_mode and not player.mode.grind and 
+    emu.framecount() - player.last_command > 36000 then
+    player:set_mode("grind")
+  end
+
 end
 
 function Player.get_tile(self)
@@ -922,11 +928,6 @@ function Enemy.update (self)
     battle_mode(true, false)
   end
 
-  -- update grind mode if needed
-  if not debug.offline and cheat.grind_mode and not player.mode.grind and 
-    emu.framecount() - player.last_command > 36000 then
-    player:set_mode("grind")
-  end
   -- hit points wrap below zero, so check for large increases.
   if self.hp == 0 or self.change.hp > 160 then
     battle_mode(false, false)
@@ -1039,9 +1040,9 @@ if not debug.offline then
 end
 player = Player
 enemy = Enemy
+player.last_command = emu.framecount()
 enemy:update()
 player:update()
-player.last_command = emu.framecount()
 player:go_to( 18,  26, 4)
 gui.register(overlay)
 emu.registerafter(update)
