@@ -3,7 +3,8 @@ require("irc")
 require("settings")
 require("controls")
 require("map")
-require("mymap")
+require("worldmap")
+
 
 TILE = {
   GRASS = 0,
@@ -131,6 +132,8 @@ function battle_mode (b)
     if not b then
       -- overwrite monster hp to avoid confusion
       memory.writebyte(0xe2, 0)
+    else
+      player.path = nil
     end
   end
   return in_battle
@@ -166,6 +169,8 @@ Player = {
     grind = false,
     auto_battle = false,
     fraidy_cat = false,
+    autonav = false,
+    explore = false,
     manual = true
   },
   path = nil,
@@ -196,15 +201,13 @@ function Player.update (self)
   self.gold = gold
   self.experience = experience
 
-  self.herbs = memory.readbyte(0xc0)
-  self.keys = memory.readbyte(0xbf)
-  self.max_hp = memory.readbyte(0xca)
-  self.max_mp = memory.readbyte(0xcb)
+  self.herbs = self.get_herbs()
+  self.keys = self:get_keys()
 
   self.last_tile = self.tile
-  self.tile = memory.readbyte(0xe0)
-  local map_x = memory.readbyte(0x8e)
-  local map_y = memory.readbyte(0x8f)
+  self.tile = self:get_tile()
+  local map_x = self:get_x()
+  local map_y = self.get_y()
   if (map_x ~= self.map_x or map_y ~= self.map_y) then
     battle_mode(false)
   end
@@ -214,11 +217,39 @@ function Player.update (self)
   self.player_y = memory.readbyte(0x3b)
   self.current_map = memory.readbyte(0x45)
 
-  if self.current_map == 1 and not in_battle then
+  if not in_battle then
     -- being in a battle changes the tile (to enemy type?)
     map:set_tile(self.player_x, self.player_y, self.current_map, self.tile)
   end
 
+end
+
+function Player.get_tile(self)
+  return memory.readbyte(0xe0)
+end
+
+function Player.get_x(self)
+  return memory.readbyte(0x8e)
+end
+
+function Player.get_y(self)
+  return memory.readbyte(0x8f)
+end
+
+function Player.get_herbs(self)
+  return memory.readbyte(0xc0)
+end
+
+function Player.get_keys(self)
+  return memory.readbyte(0xbf)
+end
+
+function Player.max_hp(self)
+  return memory.readbyte(0xca)
+end
+
+function Player.max_mp(self)
+  return memory.readbyte(0xcb)
 end
 
 function Player.cancel(self, c)
@@ -748,44 +779,70 @@ function Player.grind(self)
 end
 
 function Player.go_to(self, x, y, m)
-  self.path = map:path(self.map_x, self.map_y, self.current_map, x, y, m)
+  self.path = map:path(self:get_x(), self:get_y(), self.current_map, x, y, m)
   if self.path == nil then
     say("I don't know how to get there. Little help?")
     self.destination = nil
+    return false
   else
     self.destination = { x = x, y = y, m = m }
     self.path_pointer = 2
+    self.mode.auto_battle = true
+    return true
   end
 end
 
+function Player.stairs_trigger(self) 
+  return (self:get_tile() == 0x3 or self:get_tile() == 0x5) and
+         (self.last_tile ~= 0x3 or self.last_tile ~= 0x5)
+end
+
 function Player.follow_path(self)
-  local map_x = memory.readbyte(0x8e)
-  local map_y = memory.readbyte(0x8f)
-  if (self.path ~= nil and self.destination ~= nil) then
-    local node = self.path[self.path_pointer]
-    if node == nil then 
-      return 
+  if not in_battle then
+    if self.destination ~= nil then
+      if self.path ~= nil then
+        local node = self.path[self.path_pointer]
+        if node == nil then 
+          return false
+        end
+        -- see if we're on stairs
+        if self:stairs_trigger() then
+          self.last_tile = self:get_tile()
+          return self:stairs()
+        end
+        if (node.x == map_x and node.y == map_y) then
+          self.path_pointer = self.path_pointer + 1
+          return 
+        end
+        self:move_to_node(node)
+      else
+--         return self:go_to(self.destination.x, self.destination.y, self.destination.m)
+      end
     end
-    if (node.x == map_x and node.y == map_y) then
-      self.path_pointer = self.path_pointer + 1
-      return 
-    end
-    if (math.abs(map_x - node.x) + math.abs(map_y - node.y) > 1) then
-       self:go_to(self.destination.x, self.destination.y, self.destination.m)
-       return
-    end
-    print(("Next: X %d, Y %d"):format(node.x, node.y))
+  end
+end
+
+function Player.move_to_node(self, node)
+  local map_x = self:get_x()
+  local map_y = self:get_y()
+  if (math.abs(map_x - node.x) + math.abs(map_y - node.y) > 1) then
+    self.path = nil
+    return false
+  end
+  local result
+  print(("Next: X %d, Y %d"):format(node.x, node.y))
+  -- this could be more elegant/efficient
+  if     (map_x - node.x ==  1) then
+    result = self:left()
+  elseif (map_x - node.x == -1) then
+    result = self:right()
+  elseif (map_y - node.y ==  1) then
+    result = self:up()
+  elseif (map_y - node.y == -1) then
+    result = self:down()
+  end
+  if result or (self:get_x() == map_x and self:get_y() == map_y) then
     self.path_pointer = self.path_pointer + 1
-    -- this could be more elegant/efficient
-    if     (map_x - node.x ==  1) then
-      self:left()
-    elseif (map_x - node.x == -1) then
-      self:right()
-    elseif (map_y - node.y ==  1) then
-      self:up()
-    elseif (map_y - node.y == -1) then
-      self:down()
-    end
   end
 end
 
@@ -797,24 +854,32 @@ function Player.set_mode(self, mode)
     self.mode.grind = false
     self.mode.auto_battle = true
     self.mode.fraidy_cat = false
+--     self.mode.autonav = false
+    self.mode.explore    = false
   elseif mode == "fraidycat" then
     self.mode.grind = false
     self.mode.auto_battle = false
     self.mode.fraidy_cat = true
+--     self.mode.autonav = false
+    self.mode.explore    = false
   elseif mode == "manual" then
     self.mode.grind = false
     self.mode.auto_battle = false
     self.mode.fraidy_cat = false
+    self.mode.autonav = false
+    self.mode.explore    = false
   elseif cheat.grind_mode and mode == "grind" then
     self.mode.grind = true
     self.mode.auto_battle = false
     self.mode.fraidy_cat = false
+    self.mode.autonav = false
+    self.mode.explore    = false
   end
 end
 
 function Player.heal_thy_self(self)
   self.quiet = true
-  if self.hp * 3 < self.max_hp then
+  if self.hp * 3 < self.max_hp() then
     if self:healmore() then
       return true
     elseif self:herb() then
@@ -823,7 +888,7 @@ function Player.heal_thy_self(self)
       return true
     end
   elseif not in_battle then
-    if self.max_hp - self.hp >= 30 then
+    if self.max_hp() - self.hp >= 30 then
       if self:herb() then
         return true
       elseif self:heal() then
@@ -964,11 +1029,11 @@ if not debug.offline then
   irc.connect()
 end
 player = Player
-player:update()
-player.last_command = emu.framecount()
 enemy = Enemy
 enemy:update()
-player:go_to( 83, 113, 1)
+player:update()
+player.last_command = emu.framecount()
+player:go_to( 18,  26, 4)
 gui.register(overlay)
 emu.registerafter(update)
 
