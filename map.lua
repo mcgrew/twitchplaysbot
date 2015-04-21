@@ -85,7 +85,6 @@ end
 
 function Map.cost(self, x, y, map_num)
   local tile = self:get_tile(x, y, map_num)
---   if self.map[map_num] == nil or self.map[map_num][x] == nil or self.map[map_num][x][y] == nil then
   if tile == nil then
     return 255
   end

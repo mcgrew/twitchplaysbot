@@ -119,6 +119,8 @@ function parsecommand(player, command)
       elseif string.sub(command, 1, 6) == "!grind" then
         player:set_mode("grind")
         return false
+      elseif string.sub(command, 1, 6) == "go to " then
+        player:go_to_name(string.sub(command, 7))
       else
         return false
       end
@@ -225,7 +227,7 @@ function Player.update (self)
   end
 
   -- update grind mode if needed
-  if not debug.offline and cheat.grind_mode and not player.mode.grind and 
+  if not debug.offline and features.grind_mode and not player.mode.grind and 
     emu.framecount() - player.last_command > 36000 then
     player:set_mode("grind")
   end
@@ -730,14 +732,14 @@ function Player.herb (self)
     self:item(1)
     return true
   end
-  if cheat.herb_store then
+  if features.herb_store then
     if (self:add_gold(-self.level * self.level)) then 
       self:add_herb()
       self:item(1)
       return true
     end
   end
-  if cheat.herb_store then
+  if features.herb_store then
     say("I don't have any herbs or enough gold to buy one.")
   else
     say("I don't have any herbs.")
@@ -787,6 +789,9 @@ function Player.grind(self)
 end
 
 function Player.go_to(self, x, y, m)
+  if not features.autonav then
+    return false
+  end
   self.path = map:path(self:get_x(), self:get_y(), self.current_map, x, y, m)
   if self.path == nil then
     say("I don't know how to get there. Little help?")
@@ -806,6 +811,9 @@ function Player.stairs_trigger(self)
 end
 
 function Player.follow_path(self)
+  if not features.autonav then
+    return false
+  end
   if not in_battle then
     if self.destination ~= nil then
       if self.path ~= nil then
@@ -818,9 +826,9 @@ function Player.follow_path(self)
           self.last_tile = self:get_tile()
           return self:stairs()
         end
-        if (node.x == map_x and node.y == map_y) then
+        if (node.x == self:get_x() and node.y == self:get_y() and 
+            node.m == self.current_map ) then
           self.path_pointer = self.path_pointer + 1
-          return 
         end
         self:move_to_node(node)
       else
@@ -849,12 +857,18 @@ function Player.move_to_node(self, node)
   elseif (map_y - node.y == -1) then
     result = self:down()
   end
-  if result or (self:get_x() == map_x and self:get_y() == map_y) then
-    self.path_pointer = self.path_pointer + 1
-  end
 end
 
 function Player.go_to_name(self, location)
+  if not features.autonav then
+    return false
+  end
+  local loc = map.locations[location]
+  if loc == nil then
+    say(("%s? I've never heard of it"):format(location))
+    return false
+  end
+  return self:go_to(loc.x, loc.y, loc.m)
 end
 
 function Player.set_mode(self, mode)
@@ -876,7 +890,7 @@ function Player.set_mode(self, mode)
     self.mode.fraidy_cat = false
     self.mode.autonav = false
     self.mode.explore    = false
-  elseif cheat.grind_mode and mode == "grind" then
+  elseif features.grind_mode and mode == "grind" then
     self.mode.grind = true
     self.mode.auto_battle = false
     self.mode.fraidy_cat = false
@@ -936,7 +950,7 @@ function Enemy.update (self)
 end
 
 function Enemy.show_hp (self)
-  if (in_battle and cheat.enemy_hp) then 
+  if (in_battle and features.enemy_hp) then 
     gui.drawbox(152, 134, 190, 144, "black")
     gui.text(154, 136, string.format( "HP %3d", self.hp), "white", "black")
   end
@@ -954,7 +968,7 @@ end
 -- 
 function overlay()
   enemy:show_hp()
-  if cheat.grind_mode and player.mode.grind then
+  if features.grind_mode and player.mode.grind then
     gui.drawbox(0, 0, 60, 15, "black")
     gui.text(8, 8, "Grind mode", "white", "black")
   end
@@ -1027,7 +1041,7 @@ function update()
     player.last_command = 0
   end
 
-  if cheat.repulsive then
+  if features.repulsive then
     memory.writebyte(0xdb, 0xff)
   end
 end
@@ -1043,7 +1057,6 @@ enemy = Enemy
 player.last_command = emu.framecount()
 enemy:update()
 player:update()
-player:go_to( 18,  26, 4)
 gui.register(overlay)
 emu.registerafter(update)
 
