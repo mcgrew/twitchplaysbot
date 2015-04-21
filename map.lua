@@ -40,11 +40,11 @@ Map = {
     { from = {x=  5, y=  4, m=27}, to = {x= 10, y=  9, m=26}, command = "stairs" },
     { from = {x= 10, y=  9, m=26}, to = {x=  5, y=  4, m=27}, command = "stairs" },
 
-    { from = {x=104, y= 10, m= 1}, to = {x=  0, y= 14, m= 9}, command = nil },   --kol
-    { from = {x=nil, y=  0, m= 9}, to = {x=104, y= 10, m= 1}, command = "up" },
-    { from = {x=nil, y= 23, m= 9}, to = {x=104, y= 10, m= 1}, command = "down" },
-    { from = {x=  0, y=nil, m= 9}, to = {x=104, y= 10, m= 1}, command = "left" },
-    { from = {x= 23, y=nil, m= 9}, to = {x=104, y= 10, m= 1}, command = "right" },
+    { from = {x=104, y= 10, m= 1}, to = {x=  0, y= 14, m= 7}, command = nil },   --kol
+    { from = {x=nil, y=  0, m= 7}, to = {x=104, y= 10, m= 1}, command = "up" },
+    { from = {x=nil, y= 23, m= 7}, to = {x=104, y= 10, m= 1}, command = "down" },
+    { from = {x=  0, y=nil, m= 7}, to = {x=104, y= 10, m= 1}, command = "left" },
+    { from = {x= 23, y=nil, m= 7}, to = {x=104, y= 10, m= 1}, command = "right" },
 
     { from = {x=104, y= 44, m= 1}, to = {x=  0, y=  0, m=21}, command = nil },   -- swamp cave
     { from = {x=  0, y=  0, m=21}, to = {x=104, y= 44, m= 1}, command = "stairs"},
