@@ -16,13 +16,13 @@ Map = {
     { from = {x= 29, y=nil, m= 8}, to = {x= 48, y= 41, m= 1}, command = "right" },
 
     { from = {x=  2, y=  2, m= 1}, to = {x=  0, y= 14, m= 9}, command = nil },   --garinham
-    { from = {x=nil, y=  0, m= 9}, to = {x=102, y= 72, m= 1}, command = "up" },
-    { from = {x=nil, y= 19, m= 9}, to = {x=102, y= 72, m= 1}, command = "down" },
-    { from = {x=  0, y=nil, m= 9}, to = {x=102, y= 72, m= 1}, command = "left" },
-    { from = {x= 19, y=nil, m= 9}, to = {x=102, y= 72, m= 1}, command = "right" },
+    { from = {x=nil, y=  0, m= 9}, to = {x=  2, y=  2, m= 1}, command = "up" },
+    { from = {x=nil, y= 19, m= 9}, to = {x=  2, y=  2, m= 1}, command = "down" },
+    { from = {x=  0, y=nil, m= 9}, to = {x=  2, y=  2, m= 1}, command = "left" },
+    { from = {x= 19, y=nil, m= 9}, to = {x=  2, y=  2, m= 1}, command = "right" },
 
     { from = {x= 19, y=  0, m= 9}, to = {x=  6, y= 11, m=24}, command = "stairs" }, --grave of garin
-    { from = {x=  6, y= 11, m=24}, to = {x= 19, y=  0, m= 9}, command = "stairs" }, --grave of garin
+    { from = {x=  6, y= 11, m=24}, to = {x= 19, y=  0, m= 9}, command = "stairs" }, 
     { from = {x=  1, y= 18, m=24}, to = {x= 11, y=  2, m=25}, command = "stairs" },
     { from = {x= 11, y=  2, m=25}, to = {x=  1, y= 18, m=24}, command = "stairs" },
     { from = {x= 12, y=  1, m=25}, to = {x= 18, y=  1, m=26}, command = "stairs" },
@@ -114,6 +114,7 @@ Map = {
     rimuldar      = {x=102, y= 72, m= 1, map=11},
     cantlin       = {x= 73, y=102, m= 1, map=10},
     hauksness     = {x= 25, y= 89, m= 1, map= 3},
+--     dragonlord    = {x= 17, y= 24, m= 6        },
     charlock      = {x= 48, y= 48, m= 1, map= 2}
   }
 }

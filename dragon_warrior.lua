@@ -131,6 +131,7 @@ in_battle = false
 function battle_mode (battling, reset_enemy_hp)
   if battling ~= nil then
     in_battle = battling
+    player.valid_tile = false
     if not battling then
       if (reset_enemy_hp == true) then
         -- overwrite monster hp to avoid confusion
@@ -165,6 +166,7 @@ Player = {
 --   current_map = 0,
   tile = 0,
   last_tile = 0,
+  valid_tile = false,
 
   last_command = 0,
   grind_action = 0,
@@ -212,16 +214,22 @@ function Player.update (self)
   self.tile = self:get_tile()
   local map_x = self:get_x()
   local map_y = self.get_y()
-  if (in_battle and (map_x ~= self.map_x or map_y ~= self.map_y)) then
-    battle_mode(false, true)
+  if (map_x ~= self.map_x or map_y ~= self.map_y) then
+    if in_battle then
+      battle_mode(false, true)
+    end
+    self.valid_tile = true
+  end
+  if (self.current_map ~= self.get_map()) then
+    self.valid_tile = false
   end
   self.map_x = map_x
   self.map_y = map_y
 --   self.player_x = memory.readbyte(0x3a)
 --   self.player_y = memory.readbyte(0x3b)
---   self.current_map = self:get_map()
+   self.current_map = self:get_map()
 
-  if not in_battle then
+  if not in_battle and self.valid_tile then
     -- being in a battle changes the tile (to enemy type?)
     map:set_tile(self:get_x(), self:get_y(), self:get_map(), self:get_tile())
   end
@@ -898,6 +906,10 @@ function Player.move_to_node(self, node)
   elseif (map_y - node.y == -1) then
     result = self:down()
   end
+  if result then 
+    self.last_command = emu.framecount()
+  end
+  return result
 end
 
 function Player.go_to_name(self, location)
