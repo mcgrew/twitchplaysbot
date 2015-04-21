@@ -43,7 +43,7 @@ function say(str)
   end
 end
 
-function parsecommand(player, command)
+function parsecommand(command)
       local c = tonumber(string.sub(command, -2))
       if c == nil then
         c = tonumber(string.sub(command, -1))
@@ -137,7 +137,7 @@ function battle_mode (battling, reset_enemy_hp)
         enemy:set_hp(0)
       end
     else
-      player.path = nil
+--       player.path = nil
     end
   end
   return in_battle
@@ -160,9 +160,9 @@ Player = {
   keys = 0,
   map_x = 0,
   map_y = 0,
-  player_x = 0,
-  player_y = 0,
-  current_map = 0,
+--   player_x = 0,
+--   player_y = 0,
+--   current_map = 0,
   tile = 0,
   last_tile = 0,
 
@@ -185,11 +185,11 @@ Player = {
 function Player.update (self)
 
   -- read in the values from memory.
-  local level = memory.readbyte(0xc7)
-  local hp = memory.readbyte(0xc5)
-  local mp = memory.readbyte(0xc6)
-  local gold = memory.readbyte(0xbd) * 256 + memory.readbyte(0xbc)
-  local experience = memory.readbyte(0xbb) * 256 + memory.readbyte(0xba)
+  local level = self:get_level()
+  local hp = self:get_hp()
+  local mp = self:get_mp()
+  local gold = self:get_gold()
+  local experience = self:get_experience()
 
   -- update the changes.
   self.change.level = level - self.level
@@ -217,13 +217,13 @@ function Player.update (self)
   end
   self.map_x = map_x
   self.map_y = map_y
-  self.player_x = memory.readbyte(0x3a)
-  self.player_y = memory.readbyte(0x3b)
-  self.current_map = memory.readbyte(0x45)
+--   self.player_x = memory.readbyte(0x3a)
+--   self.player_y = memory.readbyte(0x3b)
+--   self.current_map = self:get_map()
 
   if not in_battle then
     -- being in a battle changes the tile (to enemy type?)
-    map:set_tile(self.player_x, self.player_y, self.current_map, self.tile)
+    map:set_tile(self:get_x(), self:get_y(), self:get_map(), self:get_tile())
   end
 
   -- update grind mode if needed
@@ -254,12 +254,98 @@ function Player.get_keys(self)
   return memory.readbyte(0xbf)
 end
 
+function Player.get_level(self)
+  return memory.readbyte(0xc7)
+end
+
+function Player.get_hp(self)
+  return memory.readbyte(0xc5)
+end
+
 function Player.max_hp(self)
   return memory.readbyte(0xca)
 end
 
+function Player.get_mp(self)
+  return memory.readbyte(0xc6)
+end
+
+function Player.add_hp (self, amount)
+  return self:set_hp(self.hp + amount)
+end
+
+function Player.set_hp (self, amount)
+  if (amount > 255 or amount < 0) then
+    return false
+  end
+  self.hp = amount
+  memory.writebyte(0xc5, amount)
+  return true
+end
+
 function Player.max_mp(self)
   return memory.readbyte(0xcb)
+end
+
+function Player.get_map(self)
+  return memory.readbyte(0x45)
+end
+
+function Player.add_mp (self, amount)
+  return self:set_mp(self.mp + amount)
+end
+
+function Player.set_mp (self, amount)
+  if (amount > 255 or amount < 0) then
+    return false
+  end
+  self.mp = amount
+  memory.writebyte(0xc6, amount)
+  return true
+end
+
+function Player.get_gold(self)
+  return memory.readbyte(0xbd) * 256 + memory.readbyte(0xbc)
+end
+
+function Player.add_gold (self, amount)
+  return self:set_gold(self.gold + amount)
+end
+
+function Player.set_gold (self, amount)
+  if (amount > 65535 or amount < 0) then
+    return false
+  end
+  self.gold = amount
+  memory.writebyte(0xbd, amount / 256)
+  memory.writebyte(0xbc, amount % 256)
+  return true
+end
+
+function Player.get_experience(self)
+  return memory.readbyte(0xbb) * 256 + memory.readbyte(0xba)
+end
+
+function Player.add_experience (self, amount)
+  return self:set_experience(self.experience + amount)
+end
+
+function Player.set_experience (self, amount)
+  if (amount > 65535 or amount < 0) then
+    return false
+  end
+  self.experience = amount
+  memory.writebyte(0xbb, self.experience / 256)
+  memory.writebyte(0xba, self.experience % 256)
+end
+
+function Player.add_herb (self)
+  self.herbs = memory.readbyte(0xc0)
+  if self.herbs >= 6 then
+    return false
+  end
+  memory.writebyte(0xc0, self.herbs + 1)
+  return true
 end
 
 function Player.cancel(self, c)
@@ -665,68 +751,6 @@ function Player.hurtmore(self)
   return true
 end
 
-function Player.add_hp (self, amount)
-  return self:set_hp(self.hp + amount)
-end
-
-function Player.set_hp (self, amount)
-  if (amount > 255 or amount < 0) then
-    return false
-  end
-  self.hp = amount
-  memory.writebyte(0xc5, amount)
-  return true
-end
-
-function Player.add_mp (self, amount)
-  return self:set_mp(self.mp + amount)
-end
-
-function Player.set_mp (self, amount)
-  if (amount > 255 or amount < 0) then
-    return false
-  end
-  self.mp = amount
-  memory.writebyte(0xc6, amount)
-  return true
-end
-
-function Player.add_gold (self, amount)
-  return self:set_gold(self.gold + amount)
-end
-
-function Player.set_gold (self, amount)
-  if (amount > 65535 or amount < 0) then
-    return false
-  end
-  self.gold = amount
-  memory.writebyte(0xbd, amount / 256)
-  memory.writebyte(0xbc, amount % 256)
-  return true
-end
-
-function Player.add_experience (self, amount)
-  return self:set_experience(self.experience + amount)
-end
-
-function Player.set_experience (self, amount)
-  if (amount > 65535 or amount < 0) then
-    return false
-  end
-  self.experience = amount
-  memory.writebyte(0xbb, self.experience / 256)
-  memory.writebyte(0xba, self.experience % 256)
-end
-
-function Player.add_herb (self)
-  self.herbs = memory.readbyte(0xc0)
-  if self.herbs >= 6 then
-    return false
-  end
-  memory.writebyte(0xc0, self.herbs + 1)
-  return true
-end
-
 function Player.herb (self)
   if self.herbs > 0 then
     self:item(1)
@@ -748,6 +772,9 @@ function Player.herb (self)
 end
 
 function Player.grind_move(self)
+  if self.path ~= nil and self.path[self.path_pointer] ~= nil then
+    return self:follow_path(true)
+  end
   if not in_battle then
     self.grind_action = (self.grind_action + 1) % 4
   end
@@ -763,20 +790,23 @@ function Player.grind_move(self)
 end
 
 function Player.grind(self) 
-  if self.mode.grind then
-    self:heal_thy_self()
+  if not in_battle and self.mode.grind then
+    if self:heal_thy_self() then
+      wait(120)
+    end
     if not self:grind_move() then
-      self:cancel()
+      self:cancel() -- maybe we're in a menu?
     end
   end
   if in_battle then
     if self.mode.grind or self.mode.auto_battle then
-      self:grind_move()
       if self:heal_thy_self() then
         wait(120)
       end
       self:fight()
       self:cancel() -- in case the enemy runs immediately
+      wait(15)
+      self:grind_move()
       wait(200)
     end
     if self.mode.fraidy_cat then
@@ -792,7 +822,7 @@ function Player.go_to(self, x, y, m)
   if not features.autonav then
     return false
   end
-  self.path = map:path(self:get_x(), self:get_y(), self.current_map, x, y, m)
+  self.path = map:path(self:get_x(), self:get_y(), self:get_map(), x, y, m)
   if self.path == nil then
     say("I don't know how to get there. Little help?")
     self.destination = nil
@@ -805,16 +835,17 @@ function Player.go_to(self, x, y, m)
   end
 end
 
-function Player.stairs_trigger(self) 
-  return (self:get_tile() == 0x3 or self:get_tile() == 0x5) and
-         (self.last_tile ~= 0x3 or self.last_tile ~= 0x5)
-end
+-- function Player.stairs_trigger(self) 
+--   return (self:get_tile() == 0x3 or self:get_tile() == 0x5) and
+--          (self.last_tile ~= 0x3 or self.last_tile ~= 0x5)
+-- end
 
-function Player.follow_path(self)
+function Player.follow_path(self, force)
+  if force == nil then force = false end
   if not features.autonav then
     return false
   end
-  if not in_battle then
+  if force or not in_battle then
     if self.destination ~= nil then
       if self.path ~= nil then
         local node = self.path[self.path_pointer]
@@ -822,12 +853,22 @@ function Player.follow_path(self)
           return false
         end
         -- see if we're on stairs
-        if self:stairs_trigger() then
-          self.last_tile = self:get_tile()
-          return self:stairs()
+--         if self:stairs_trigger() then
+--           self.last_tile = self:get_tile()
+--           return self:stairs()
+--         end
+        if node.m ~= self:get_map() then
+          local command = nil
+          local warp = map:warp(self:get_x(), self:get_y(), 
+                                   self:get_map())
+          if warp ~= nil then command = warp.command end
+          if command ~= nil then
+            return parsecommand(command)
+          end
+          wait(120)
         end
         if (node.x == self:get_x() and node.y == self:get_y() and 
-            node.m == self.current_map ) then
+            node.m == self:get_map() ) then
           self.path_pointer = self.path_pointer + 1
         end
         self:move_to_node(node)
@@ -927,6 +968,49 @@ Enemy = {
   change = {
     hp = 0
   },
+  types = {
+    "Slime",  -- 0
+    "Red Slime",
+    "Drakee",
+    "Ghost",
+    "Magician",
+    "Magidrakee", -- 5
+    "Scorpion",
+    "Druin",
+    "Poltergeist",
+    "Droll",
+    "Drakeema",  --10
+    "Skeleton",
+    "Warlock",
+    "Metal Scorpion",
+    "Wolf",
+    "Wraith",  --15
+    "Metal Slime",
+    "Specter",
+    "Wolflord",
+    "Druinlord",
+    "Drollmagi",  --20
+    "Wyvern",
+    "Rogue Scorpion",
+    "Wraith Knight",
+    "Golem",
+    "Goldman",  -- 25
+    "Knight",
+    "Magiwyvern",
+    "Demon Knight",
+    "Werewolf",
+    "Green Dragon",  -- 30
+    "Starwyvern",
+    "Wizard",
+    "Axe Knight",
+    "Blue Dragon",
+    "Stoneman", --35
+    "Armored Knight",
+    "Red Dragon",
+    "Dragonlord",  --first form
+    "Dragonlord"  --second form
+
+  }
 }
 
 function Enemy.update (self)
@@ -956,7 +1040,7 @@ function Enemy.show_hp (self)
   end
 end
 
-function Enemy.set_hp(hp)
+function Enemy.set_hp(self, hp)
   if (hp > 255 or hp < 0) then
     return false
   end
@@ -998,8 +1082,8 @@ function overlay()
       local pathnode = player.path[player.path_pointer]
       if pathnode ~= nil and pathnode.m ~= nil and pathnode.x ~= nil and pathnode.y ~= nil then
         gui.text(8, 48,
-          string.format( "Nextnode: [%3d,%3d,%3d]",
-            pathnode.m, pathnode.x, pathnode.y
+          string.format( "Nextnode: [%3d,%3d,%3d] [%d]",
+            pathnode.m, pathnode.x, pathnode.y, player.path_pointer
           ), "white", "black")
       end
     end
@@ -1022,10 +1106,7 @@ end
 
 function update()
   -- create a save state every 10 minutes in case of a crash
-  if (emu.framecount() % 1000 == 0) then
-    map:dump()
-    print(("Map dumped at %d"):format(emu.framecount()))
-  end
+  map:dump()
 --   if (emu.framecount() % 3600 == 0) then
 --    savestate.persist(savestate.object(1))
     -- path test
@@ -1046,8 +1127,15 @@ function update()
   end
 end
 
+-- this doesn't work
+-- function onexit()
+--   -- finish dumping the map if we're in the middle
+--   while(map:dump()) do end 
+-- end
+-- emu.registerexit(onexit)
+
 -- main loop
-savestate.load(savestate.object(1))
+-- savestate.load(savestate.object(1))
 irc.initialize(irc.settings)
 if not debug.offline then
   irc.connect()
@@ -1074,7 +1162,7 @@ while(true) do
       msg = irc.message()
       if msg ~= nil then
         command = string.lower(msg.message)
-        if (parsecommand(player, command)) then
+        if (parsecommand(command)) then
           player.last_command = emu.framecount()
           player.mode.grind = false
         end

@@ -2,10 +2,96 @@ require("astar")
 
 Map = {
   warps = {
-    {x=104, y= 44, m= 1}, {x=  0, y=  0, m=21},
-    {x=  0, y=  0, m=21}, {x=104, y= 44, m= 1}, 
-    {x=  0, y= 29, m=21}, {x=104, y= 49, m= 1},
-    {x= 43, y= 43, m= 1}, {x= 11, y= 29, m= 4}
+    { from = {x= 43, y= 43, m= 1}, to = {x= 11, y= 29, m= 4}, command = nil },   --tantegel
+    { from = {x=nil, y=  0, m= 4}, to = {x= 43, y= 43, m= 1}, command = "up" },
+    { from = {x=nil, y= 29, m= 4}, to = {x= 43, y= 43, m= 1}, command = "down" },
+    { from = {x=  0, y=nil, m= 4}, to = {x= 43, y= 43, m= 1}, command = "left" },
+    { from = {x= 29, y=nil, m= 4}, to = {x= 43, y= 43, m= 1}, command = "right" },
+
+    { from = {x= 48, y= 41, m= 1}, to = {x=  8, y=  0, m= 8}, command = nil },   --brecconary
+    { from = {x=nil, y=  0, m= 8}, to = {x= 48, y= 41, m= 1}, command = "up" },
+    { from = {x=  0, y=nil, m= 8}, to = {x= 48, y= 41, m= 1}, command = "left" },
+    { from = {x= 29, y=nil, m= 8}, to = {x= 48, y= 41, m= 1}, command = "right" },
+
+    { from = {x=  2, y=  2, m= 1}, to = {x=  0, y= 14, m= 9}, command = nil },   --garinham
+    { from = {x=nil, y=  0, m= 9}, to = {x=102, y= 72, m= 1}, command = "up" },
+    { from = {x=nil, y= 19, m= 9}, to = {x=102, y= 72, m= 1}, command = "down" },
+    { from = {x=  0, y=nil, m= 9}, to = {x=102, y= 72, m= 1}, command = "left" },
+    { from = {x= 19, y=nil, m= 9}, to = {x=102, y= 72, m= 1}, command = "right" },
+
+    { from = {x= 19, y=  0, m= 9}, to = {x=  6, y= 11, m=24}, command = "stairs" }, --grave of garin
+    { from = {x=  1, y= 18, m=24}, to = {x= 11, y=  2, m=25}, command = "stairs" },
+    { from = {x= 12, y=  1, m=25}, to = {x= 18, y=  1, m=26}, command = "stairs" },
+    { from = {x= 12, y= 10, m=25}, to = {x= 18, y= 13, m=26}, command = "stairs" },
+    { from = {x= 14, y=  1, m=26}, to = {x=  1, y=  1, m=25}, command = "stairs" },
+    { from = {x=  5, y=  6, m=25}, to = {x=  6, y= 11, m=26}, command = "stairs" },
+    { from = {x=  1, y= 10, m=25}, to = {x=  2, y= 17, m=26}, command = "stairs" },
+    { from = {x=  9, y=  5, m=26}, to = {x=  0, y=  4, m=27}, command = "stairs" },
+    { from = {x=  5, y=  4, m=27}, to = {x= 10, y=  9, m=26}, command = "stairs" },
+
+    { from = {x=104, y= 10, m= 1}, to = {x=  0, y= 14, m= 9}, command = nil },   --kol
+    { from = {x=nil, y=  0, m= 9}, to = {x=104, y= 10, m= 1}, command = "up" },
+    { from = {x=nil, y= 23, m= 9}, to = {x=104, y= 10, m= 1}, command = "down" },
+    { from = {x=  0, y=nil, m= 9}, to = {x=104, y= 10, m= 1}, command = "left" },
+    { from = {x= 23, y=nil, m= 9}, to = {x=104, y= 10, m= 1}, command = "right" },
+
+    { from = {x=104, y= 44, m= 1}, to = {x=  0, y=  0, m=21}, command = nil },   -- swamp cave
+    { from = {x=  0, y=  0, m=21}, to = {x=104, y= 44, m= 1}, command = "stairs"},
+    { from = {x=  0, y= 29, m=21}, to = {x=104, y= 49, m= 1}, command = "stairs" },
+    { from = {x=104, y= 49, m= 1}, to = {x=  0, y= 29, m=21}, command = nil },
+
+    { from = {x=102, y= 72, m= 1}, to = {x= 29, y= 14, m=11}, command = nil },   --rimuldar
+    { from = {x=nil, y=  0, m=11}, to = {x=102, y= 72, m= 1}, command = "up" },
+    { from = {x=nil, y= 29, m=11}, to = {x=102, y= 72, m= 1}, command = "down" },
+    { from = {x=  0, y=nil, m=11}, to = {x=102, y= 72, m= 1}, command = "left" },
+    { from = {x= 29, y=nil, m=11}, to = {x=102, y= 72, m= 1}, command = "right" },
+
+    { from = {x= 73, y=102, m= 1}, to = {x= 15, y=  0, m=10}, command = nil },   --cantlin
+    { from = {x=nil, y=  0, m=10}, to = {x= 73, y=102, m= 1}, command = "up" },
+    { from = {x=nil, y= 29, m=10}, to = {x= 73, y=102, m= 1}, command = "down" },
+    { from = {x=  0, y=nil, m=10}, to = {x= 73, y=102, m= 1}, command = "left" },
+    { from = {x= 29, y=nil, m=10}, to = {x= 73, y=102, m= 1}, command = "right" },
+
+    { from = {x= 25, y= 89, m= 1}, to = {x=  0, y= 10, m= 3}, command = nil },   --hauksness
+    { from = {x=nil, y=  0, m= 3}, to = {x= 25, y= 89, m= 1}, command = "up" },
+    { from = {x=nil, y= 19, m= 3}, to = {x= 25, y= 89, m= 1}, command = "down" },
+    { from = {x=  0, y=nil, m= 3}, to = {x= 25, y= 89, m= 1}, command = "left" },
+    { from = {x= 19, y=nil, m= 3}, to = {x= 25, y= 89, m= 1}, command = "right" },
+
+    { from = {x= 48, y= 48, m= 1}, to = {x= 10, y= 19, m= 2}, command = nil },   --charlock
+    { from = {x=nil, y= 19, m= 2}, to = {x= 48, y= 48, m= 1}, command = "down" },
+
+    { from = {x= 10, y=  1, m= 2}, to = {x=  9, y=  0, m=15}, command = "stairs" },
+    { from = {x=  9, y=  0, m=15}, to = {x= 10, y=  1, m= 2}, command = "stairs" },
+    { from = {x=  8, y= 19, m=15}, to = {x=  5, y=  0, m=16}, command = "stairs" },
+    { from = {x=  5, y=  0, m=16}, to = {x=  8, y= 19, m=15}, command = "stairs" },
+    { from = {x=  3, y=  0, m=16}, to = {x=  7, y=  0, m=17}, command = "stairs" },
+    { from = {x=  7, y=  0, m=17}, to = {x=  3, y=  0, m=16}, command = "stairs" },
+    { from = {x=  5, y=  4, m=17}, to = {x=  0, y=  8, m=16}, command = "stairs" },
+    { from = {x=  0, y=  8, m=16}, to = {x=  5, y=  4, m=17}, command = "stairs" },
+    { from = {x=  1, y=  9, m=16}, to = {x=  0, y=  9, m=17}, command = "stairs" },
+    { from = {x=  0, y=  9, m=17}, to = {x=  1, y=  9, m=16}, command = "stairs" },
+    { from = {x=  1, y=  6, m=17}, to = {x=  0, y=  9, m=18}, command = "stairs" },
+    { from = {x=  0, y=  9, m=18}, to = {x=  1, y=  6, m=17}, command = "stairs" },
+    { from = {x=  8, y=  1, m=18}, to = {x=  4, y=  0, m=19}, command = "stairs" },
+    { from = {x=  4, y=  0, m=19}, to = {x=  8, y=  1, m=18}, command = "stairs" },
+    { from = {x=  5, y=  5, m=19}, to = {x=  0, y=  0, m=20}, command = "stairs" },
+    { from = {x=  0, y=  0, m=20}, to = {x=  5, y=  5, m=19}, command = "stairs" },
+    { from = {x=  9, y=  0, m=20}, to = {x=  0, y=  0, m=20}, command = "stairs" },
+    { from = {x=  7, y=  7, m=18}, to = {x=  7, y=  7, m=17}, command = "stairs" },
+    { from = {x=  7, y=  7, m=17}, to = {x=  7, y=  7, m=18}, command = "stairs" },
+    { from = {x=  2, y=  2, m=17}, to = {x=  9, y=  1, m=16}, command = "stairs" },
+    { from = {x=  9, y=  1, m=16}, to = {x=  2, y=  2, m=17}, command = "stairs" },
+    { from = {x=  8, y=  0, m=16}, to = {x= 15, y=  1, m=15}, command = "stairs" },
+    { from = {x= 15, y=  1, m=15}, to = {x=  8, y=  0, m=16}, command = "stairs" },
+    { from = {x= 13, y= 17, m=15}, to = {x=  4, y=  4, m=16}, command = "stairs" },
+    { from = {x=  4, y=  4, m=16}, to = {x= 13, y= 17, m=15}, command = "stairs" },
+    { from = {x=  2, y=  2, m=18}, to = {x=  9, y=  0, m=19}, command = "stairs" },
+    { from = {x=  9, y=  0, m=19}, to = {x=  2, y=  2, m=18}, command = "stairs" },
+    { from = {x=  0, y=  0, m=19}, to = {x=  0, y=  6, m=20}, command = "stairs" },
+    { from = {x=  0, y=  6, m=20}, to = {x=  0, y=  0, m=19}, command = "stairs" },
+    { from = {x=  9, y=  6, m=20}, to = {x= 10, y= 29, m= 6}, command = "stairs" },
+    { from = {x= 10, y= 29, m= 6}, to = {x=  9, y=  6, m=20}, command = "stairs" },
   },
   locations = {
     tantegel   = {x= 43, y= 43, m= 1, map= 4},
@@ -47,31 +133,45 @@ function Map.generate(self)
 end
 
 function Map.dump(self) 
-  local f = io.open('worldmap.lua', 'w')
-  for m=1,28 do
-    f:write(string.format("Map.map[%d] = {\n", m))
-    for i=1,128 do
-      f:write("{")
-      for j=1,128 do
-        f:write(string.format("%3d", self.map[m][i][j]))
-        if j < 128 then
-          f:write(",")
+  if emu.framecount() % 4000 == 0 then
+    self.dumproutine = coroutine.create(function(map)
+      local f = io.open('worldmap.lua', 'w')
+      for m=1,28 do
+        f:write(string.format("Map.map[%d] = {\n", m))
+        for i=1,128 do
+          f:write("{")
+          for j=1,128 do
+            f:write(string.format("%3d", map[m][i][j]))
+            if j < 128 then
+              f:write(",")
+            end
+          end
+          if i < 128 then
+            f:write("},\n")
+          else
+            f:write("}\n")
+          end
         end
-      end
-      if i < 128 then
-        f:write("},\n")
-      else
         f:write("}\n")
+        coroutine.yield()
       end
-    end
-    f:write("}\n")
+      f:close()
+      print(("Map dumped at %d"):format(emu.framecount()))
+    end)
   end
-  f:close()
+  if self.dumproutine ~= nil then
+    return coroutine.resume(self.dumproutine, self.map) or false
+  end
+  return false
 end
+ 
 
 function Map.set_tile(self, x, y, map_num, tile)
   -- set the tile to the specified value
-  self.map[map_num][x+1][y+1] = tile
+  if self.map[map_num] ~= nil and self.map[map_num][x+1] ~= nil and 
+      self.map[map_num][x+1][y+1] ~= nil then
+    self.map[map_num][x+1][y+1] = tile
+  end
   -- update the tile cost in the node list
   self.nodes[((map_num-1) * 128 * 128) + x * 128 + y + 1].cost = self:cost(x, y, map_num)
 end
@@ -140,12 +240,10 @@ function Map.warp(self, x, y, map_num)
     if w == nil then
       break
     end
-    if w.x == x and w.y == y and w.m == map_num then
-      if i % 2 == 0 then 
-        return self.warps[i-1]
-      else 
-        return self.warps[i+1]
-      end
+    if (w.from.x == nil or w.from.x == x) and 
+       (w.from.y == nil or w.from.y == y) and 
+        w.from.m == map_num then
+      return self.warps[i]
     end
   end
   return nil
@@ -171,7 +269,7 @@ function neighbor_nodes(current, nodes)
   local neighbors = {}
   local warp = map:warp(x, y, m)
   if warp ~= nil then
-      node = map:getnode(warp.x, warp.y, warp.m)
+      node = map:getnode(warp.to.x, warp.to.y, warp.to.m)
       table.insert(neighbors, node)
   end
   if x > 0 then
