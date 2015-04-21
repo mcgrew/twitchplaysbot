@@ -7,6 +7,8 @@ Map = {
     { from = {x=nil, y= 29, m= 4}, to = {x= 43, y= 43, m= 1}, command = "down" },
     { from = {x=  0, y=nil, m= 4}, to = {x= 43, y= 43, m= 1}, command = "left" },
     { from = {x= 29, y=nil, m= 4}, to = {x= 43, y= 43, m= 1}, command = "right" },
+    { from = {x=  7, y=  7, m= 4}, to = {x=  8, y=  8, m= 5}, command = "stairs" },
+    { from = {x=  8, y=  8, m= 5}, to = {x=  7, y=  7, m= 4}, command = "stairs" },
 
     { from = {x= 48, y= 41, m= 1}, to = {x=  8, y=  0, m= 8}, command = nil },   --brecconary
     { from = {x=nil, y=  0, m= 8}, to = {x= 48, y= 41, m= 1}, command = "up" },
@@ -20,14 +22,23 @@ Map = {
     { from = {x= 19, y=nil, m= 9}, to = {x=102, y= 72, m= 1}, command = "right" },
 
     { from = {x= 19, y=  0, m= 9}, to = {x=  6, y= 11, m=24}, command = "stairs" }, --grave of garin
+    { from = {x=  6, y= 11, m=24}, to = {x= 19, y=  0, m= 9}, command = "stairs" }, --grave of garin
     { from = {x=  1, y= 18, m=24}, to = {x= 11, y=  2, m=25}, command = "stairs" },
+    { from = {x= 11, y=  2, m=25}, to = {x=  1, y= 18, m=24}, command = "stairs" },
     { from = {x= 12, y=  1, m=25}, to = {x= 18, y=  1, m=26}, command = "stairs" },
+    { from = {x= 18, y=  1, m=26}, to = {x= 12, y=  1, m=25}, command = "stairs" },
     { from = {x= 12, y= 10, m=25}, to = {x= 18, y= 13, m=26}, command = "stairs" },
+    { from = {x= 18, y= 13, m=26}, to = {x= 12, y= 10, m=25}, command = "stairs" },
     { from = {x= 14, y=  1, m=26}, to = {x=  1, y=  1, m=25}, command = "stairs" },
+    { from = {x=  1, y=  1, m=25}, to = {x= 14, y=  1, m=26}, command = "stairs" },
     { from = {x=  5, y=  6, m=25}, to = {x=  6, y= 11, m=26}, command = "stairs" },
+    { from = {x=  6, y= 11, m=26}, to = {x=  5, y=  6, m=25}, command = "stairs" },
     { from = {x=  1, y= 10, m=25}, to = {x=  2, y= 17, m=26}, command = "stairs" },
+    { from = {x=  2, y= 17, m=26}, to = {x=  1, y= 10, m=25}, command = "stairs" },
     { from = {x=  9, y=  5, m=26}, to = {x=  0, y=  4, m=27}, command = "stairs" },
+    { from = {x=  0, y=  4, m=27}, to = {x=  9, y=  5, m=26}, command = "stairs" },
     { from = {x=  5, y=  4, m=27}, to = {x= 10, y=  9, m=26}, command = "stairs" },
+    { from = {x= 10, y=  9, m=26}, to = {x=  5, y=  4, m=27}, command = "stairs" },
 
     { from = {x=104, y= 10, m= 1}, to = {x=  0, y= 14, m= 9}, command = nil },   --kol
     { from = {x=nil, y=  0, m= 9}, to = {x=104, y= 10, m= 1}, command = "up" },
@@ -94,14 +105,16 @@ Map = {
     { from = {x= 10, y= 29, m= 6}, to = {x=  9, y=  6, m=20}, command = "stairs" },
   },
   locations = {
-    tantegel   = {x= 43, y= 43, m= 1, map= 4},
-    brecconary = {x= 48, y= 41, m= 1, map= 8},
-    garinham   = {x=  2, y=  2, m= 1, map= 9},
-    kol        = {x=104, y= 10, m= 1, map= 7},
-    rimuldar   = {x=102, y= 72, m= 1, map=11},
-    cantlin    = {x= 73, y=102, m= 1, map=10},
-    hauksness  = {x= 25, y= 89, m= 1, map= 3},
-    charlock   = {x= 48, y= 48, m= 1, map= 2}
+    ['the king' ] = {x=  3, y=  4, m= 5        },
+    ['magic man'] = {x= 18, y= 26, m= 4        },
+    tantegel      = {x= 43, y= 43, m= 1, map= 4},
+    brecconary    = {x= 48, y= 41, m= 1, map= 8},
+    garinham      = {x=  2, y=  2, m= 1, map= 9},
+    kol           = {x=104, y= 10, m= 1, map= 7},
+    rimuldar      = {x=102, y= 72, m= 1, map=11},
+    cantlin       = {x= 73, y=102, m= 1, map=10},
+    hauksness     = {x= 25, y= 89, m= 1, map= 3},
+    charlock      = {x= 48, y= 48, m= 1, map= 2}
   }
 }
 
