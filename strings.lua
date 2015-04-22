@@ -22,7 +22,8 @@ strings = {
 		"I just felt like running. So I did.",
 		"You can't catch me son! Don't even try!",
 		"He was a fierce beast! With big fangs! What? Didn't you see the bones?",
-		"I think I soiled my armor."
+		"I think I soiled my armor.",
+		"Who, me? I wasn't running, I just had somewhere to be.. that wasn't anywhere near that %s."
 	},
   enemydefeat = {
 		"I have done well in defeating the %s.",
@@ -31,7 +32,9 @@ strings = {
 		"There ain't gonna be no rematch!",
 		"Did you see that? There were like 20 of them! No match for me though.",
 		"That was easy.",
-		"Seriously? That's all you got? Where's the REAL challenger?"
+		"Seriously? That's all you got? Where's the REAL challenger?",
+		"You can't touch this.",
+		"I attack the %s! It's super effective!"
 	},
 	playerdefeat = {
 		"Ouch.",
@@ -39,9 +42,9 @@ strings = {
 		"Oy! Gevalt!",
 		"I'll be back.",
 		"I'm not quite dead yet.",
-		"Oh great king! Little help here please!",
+		"Oh great king! A little help here please!",
 		"Well that didn't go quite like I envisioned it.",
-		"Thou are at fault for this! Thou art a terrible tactician!"
+		"Thou are at fault for this! Thou! Thou! Not I! Thou art a terrible tactician!"
 	}
 }
 

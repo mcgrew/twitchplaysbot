@@ -988,7 +988,7 @@ function Player.heal_thy_self(self)
     elseif self:heal() then 
       returnvalue = true
     end
-  elseif not in_battle then
+  elseif not in_battle and (self:get_level() < 17 or self:get_mp() < 18) then
     if self:max_hp() - self:get_hp() >= 30 then
 			if self:get_mp() >= 12 and self:heal() then
         returnvalue = true
