@@ -1139,6 +1139,19 @@ function update()
   end
 end
 
+
+-- for battle detection (enemies or you runnign away)
+function running(address)
+  if address == 0xefc8 then
+    say("I guess he didn't like me very much")
+  else
+    say("Whew! That was scary.")
+  end
+  battle_mode(false, true)
+end
+memory.registerexecute(0xefc8, running)
+memory.registerexecute(0xe8a4, running)
+
 -- this doesn't work
 -- function onexit()
 --   -- finish dumping the map if we're in the middle
