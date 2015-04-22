@@ -1173,9 +1173,9 @@ end
 -- for battle detection (enemies or you runnign away)
 function running(address)
   if address == 0xefc8 then
-		battle_message(strings.enemyrun, player:get_tile())
+		battle_message(strings.enemyrun, player:get_tile()+1)
   else
-		battle_message(strings.playerrun, player:get_tile())
+		battle_message(strings.playerrun, player:get_tile()+1)
   end
   battle_mode(false, true)
 end
