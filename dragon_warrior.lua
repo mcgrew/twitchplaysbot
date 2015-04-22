@@ -669,7 +669,7 @@ end
 function Player.hurt(self)
   if (AND(memory.readbyte(0xce), 0x2) > 0) then
     if not in_battle then
-      say("Hurt is a battle spell. I are not in battle.")
+      say("Hurt is a battle spell. I am not in battle.")
       return false
     end
     self:spell(2)
@@ -683,7 +683,7 @@ end
 function Player.sleep(self)
   if (AND(memory.readbyte(0xce), 0x4) > 0) then
     if not in_battle then
-      say("Sleep is a battle spell. I are not in battle.")
+      say("Sleep is a battle spell. I am not in battle.")
       return false
     end
     self:spell(3)
@@ -707,7 +707,7 @@ end
 function Player.stopspell(self)
   if (AND(memory.readbyte(0xce), 0x10) > 0) then
     if not in_battle then
-      say("Stopspell is a battle spell. I are not in battle.")
+      say("Stopspell is a battle spell. I am not in battle.")
       return false
     end
     self:spell(5)
@@ -765,7 +765,7 @@ end
 function Player.hurtmore(self)
   if (AND(memory.readbyte(0xcf), 0x2) > 0) then
     if not in_battle then
-      say("Hurtmore is a battle spell. I are not in battle.")
+      say("Hurtmore is a battle spell. I am not in battle.")
       return false
     end
     self:spell(10)
