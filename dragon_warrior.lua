@@ -141,9 +141,11 @@ function parsecommand(command)
 end
 
 in_battle = false
+pre_battle = false
 function battle_mode (battling, reset_enemy_hp)
   if battling ~= nil then
     in_battle = battling
+    pre_battle = battling
     player.valid_tile = false
     if not battling then
       if (reset_enemy_hp == true) then
@@ -778,6 +780,7 @@ function Player.herb (self)
   end
   if features.herb_store then
     if (self:add_gold(-self.level * self.level)) then 
+			say(("I purchased an herb for %dG"):format(self.level * self.level))
       self:add_herb()
       self:item(1)
       return true
@@ -865,6 +868,7 @@ function Player.follow_path(self, force)
   if not features.autonav then
     return false
   end
+	if self:heal_thy_self() then wait(240) end
   if force or not in_battle then
     if self.destination ~= nil then
       if self.path ~= nil then
@@ -966,25 +970,28 @@ end
 
 function Player.heal_thy_self(self)
   self.quiet = true
-  if self.hp * 3 < self.max_hp() then
+	local returnvalue = false
+  if self:get_hp() * 3 < self:max_hp() then
     if self:healmore() then
-      return true
+      returnvalue = true
     elseif self:herb() then
-      return true
+      returnvalue = true
     elseif self:heal() then 
-      return true
+      returnvalue = true
     end
   elseif not in_battle then
-    if self.max_hp() - self.hp >= 30 then
-      if self:herb() then
-        return true
+    if self:max_hp() - self:get_hp() >= 30 then
+			if self:get_mp() >= 12 and self:heal() then
+        returnvalue = true
+      elseif self:herb() then
+        returnvalue = true
       elseif self:heal() then
-        return true
+        returnvalue = true
       end
     end
   end
   self.quiet = false
-  return false
+  return returnvalue
 end
 
 Enemy = {
@@ -1069,6 +1076,7 @@ function Enemy.set_hp(self, hp)
   if (hp > 255 or hp < 0) then
     return false
   end
+	self.hp = hp
   memory.writebyte(0xe2, hp)
   return true
 end
@@ -1168,6 +1176,7 @@ memory.registerexecute(0xe8a4, running)
 -- A thing draws near!
 function encounter(address)
   battle_message(strings.encounter, memory.readbyte(0x3c)+1)
+	pre_battle = true
 end
 memory.registerexecute(0xcf44, encounter)
 
