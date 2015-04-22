@@ -4,6 +4,7 @@ require("settings")
 require("controls")
 require("map")
 require("worldmap")
+require("strings")
 
 
 TILE = {
@@ -24,14 +25,14 @@ TILE = {
 }
 
 
-function commandlist()
-  say("General Commands:")
-  say("up, down, left, right, a, b, select, start")
-  say("Overworld Commands:")
-  say("talk, status, stairs, search, spell, item, door, take")
-  say("Battle Commands:")
-  say("fight, run, spell, item#")
-end
+-- function commandlist()
+--   say("General Commands:")
+--   say("up, down, left, right, a, b, select, start")
+--   say("Overworld Commands:")
+--   say("talk, status, stairs, search, spell, item, door, take")
+--   say("Battle Commands:")
+--   say("fight, run, spell, item#")
+-- end
 
 function say(str) 
   if debug.offline then
@@ -42,6 +43,18 @@ function say(str)
     end
   end
 end
+
+function battle_message(strings, enemy_type)
+  if enemy_type == nil then
+		say(strings[math.random(#strings)])
+	else
+		local enemy_name = enemy.types[enemy_type]
+		if enemy_name ~= nil then
+			say(strings[math.random(#strings)]:format(enemy_name))
+		end
+	end
+end
+
 
 function parsecommand(command)
       local c = tonumber(string.sub(command, -2))
@@ -106,10 +119,10 @@ function parsecommand(command)
         player:repel()
       elseif string.sub(command, 1, 4) == "herb" then
         player:herb()
-      elseif string.sub(command, 1, 8) == "!command" then
-        commandlist()
-      elseif string.sub(command, 1, 5) == "!help" then
-        commandlist()
+--      elseif string.sub(command, 1, 8) == "!command" then
+--        commandlist()
+--      elseif string.sub(command, 1, 5) == "!help" then
+--        commandlist()
       elseif string.sub(command, 1, 11) == "!autobattle" then
         player:set_mode("autobattle")
       elseif string.sub(command, 1, 10) == "!fraidycat" then
@@ -1038,8 +1051,9 @@ function Enemy.update (self)
   end
 
   -- hit points wrap below zero, so check for large increases.
-  if self.hp == 0 or self.change.hp > 160 then
+  if in_battle and (self.hp == 0 or self.change.hp > 160) then
     battle_mode(false, false)
+		battle_message(strings.enemydefeat, player:get_tile()+1)
   end
 
 end
@@ -1142,9 +1156,9 @@ end
 -- for battle detection (enemies or you runnign away)
 function running(address)
   if address == 0xefc8 then
-    say("I guess he didn't like me very much")
+		battle_message(strings.enemyrun, player:get_tile())
   else
-    say("Whew! That was scary.")
+		battle_message(strings.playerrun, player:get_tile())
   end
   battle_mode(false, true)
 end
@@ -1153,10 +1167,7 @@ memory.registerexecute(0xe8a4, running)
 
 -- A thing draws near!
 function encounter(address)
-  local enemy_type = Enemy.types[memory.readbyte(0x3c)+1]
-  if enemy_type ~= nil then
-    say(("A %s draws near!"):format(enemy_type))
-  end
+  battle_message(strings.encounter, memory.readbyte(0x3c)+1)
 end
 memory.registerexecute(0xcf44, encounter)
 
