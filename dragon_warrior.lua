@@ -189,7 +189,6 @@ Player = {
     grind = false,
     auto_battle = false,
     fraidy_cat = false,
-    autonav = false,
     explore = false,
     manual = true
   },
@@ -247,6 +246,10 @@ function Player.update (self)
     -- being in a battle changes the tile (to enemy type?)
     map:set_tile(self:get_x(), self:get_y(), self:get_map(), self:get_tile())
   end
+
+	if hp == 0 and self.change.hp ~= 0 then
+		battle_message(strings.playerdefeat, player:get_tile()+1)
+	end
 
   -- update grind mode if needed
   if not debug.offline and features.grind_mode and not player.mode.grind and 
@@ -795,7 +798,7 @@ function Player.herb (self)
 end
 
 function Player.grind_move(self)
-  if self.path ~= nil and self.path[self.path_pointer] ~= nil then
+  if self:mode_autonav() then
     return self:follow_path(true)
   end
   if not in_battle then
@@ -863,12 +866,20 @@ end
 --          (self.last_tile ~= 0x3 or self.last_tile ~= 0x5)
 -- end
 
+function Player.mode_autonav(self, enable)
+	if enable == false then
+		self.path = nil
+		self.destination = nil
+	end
+  return self.path ~= nil and self.path[self.path_pointer] ~= nil
+end
+
 function Player.follow_path(self, force)
   if force == nil then force = false end
   if not features.autonav then
     return false
   end
-	if self:heal_thy_self() then wait(240) end
+	if self:mode_autonav() and self:heal_thy_self() then wait(240) end
   if force or not in_battle then
     if self.destination ~= nil then
       if self.path ~= nil then
@@ -945,25 +956,23 @@ function Player.set_mode(self, mode)
     self.mode.grind = false
     self.mode.auto_battle = true
     self.mode.fraidy_cat = false
---     self.mode.autonav = false
     self.mode.explore    = false
   elseif mode == "fraidycat" then
     self.mode.grind = false
     self.mode.auto_battle = false
     self.mode.fraidy_cat = true
---     self.mode.autonav = false
     self.mode.explore    = false
   elseif mode == "manual" then
     self.mode.grind = false
     self.mode.auto_battle = false
     self.mode.fraidy_cat = false
-    self.mode.autonav = false
+    self:mode_autonav(false)
     self.mode.explore    = false
   elseif features.grind_mode and mode == "grind" then
     self.mode.grind = true
     self.mode.auto_battle = false
     self.mode.fraidy_cat = false
-    self.mode.autonav = false
+    self:mode_autonav(false)
     self.mode.explore    = false
   end
 end

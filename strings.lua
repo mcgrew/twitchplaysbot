@@ -32,6 +32,16 @@ strings = {
 		"Did you see that? There were like 20 of them! No match for me though.",
 		"That was easy.",
 		"Seriously? That's all you got? Where's the REAL challenger?"
+	},
+	playerdefeat = {
+		"Ouch.",
+		"That really hurt, Charlie!",
+		"Oy! Gevalt!",
+		"I'll be back.",
+		"I'm not quite dead yet.",
+		"Oh great king! Little help here please!",
+		"Well that didn't go quite like I envisioned it.",
+		"Thou are at fault for this! Thou art a terrible tactician!"
 	}
 }
 
