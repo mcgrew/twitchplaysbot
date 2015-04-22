@@ -138,7 +138,6 @@ function battle_mode (battling, reset_enemy_hp)
         enemy:set_hp(0)
       end
     else
---       player.path = nil
     end
   end
   return in_battle
@@ -1151,6 +1150,15 @@ function running(address)
 end
 memory.registerexecute(0xefc8, running)
 memory.registerexecute(0xe8a4, running)
+
+-- A thing draws near!
+function encounter(address)
+  local enemy_type = Enemy.types[memory.readbyte(0x3c)+1]
+  if enemy_type ~= nil then
+    say(("A %s draws near!"):format(enemy_type))
+  end
+end
+memory.registerexecute(0xcf44, encounter)
 
 -- this doesn't work
 -- function onexit()
