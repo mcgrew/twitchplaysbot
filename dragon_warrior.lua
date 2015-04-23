@@ -669,7 +669,7 @@ end
 function Player.hurt(self)
   if (AND(memory.readbyte(0xce), 0x2) > 0) then
     if not in_battle then
-      say("Hurt is a battle spell. I are not in battle.")
+      say("Hurt is a battle spell. I am not fighting anything!")
       return false
     end
     self:spell(2)
@@ -683,7 +683,7 @@ end
 function Player.sleep(self)
   if (AND(memory.readbyte(0xce), 0x4) > 0) then
     if not in_battle then
-      say("Sleep is a battle spell. I are not in battle.")
+      say("Sleep is a battle spell. I am not fighting anything!")
       return false
     end
     self:spell(3)
@@ -707,7 +707,7 @@ end
 function Player.stopspell(self)
   if (AND(memory.readbyte(0xce), 0x10) > 0) then
     if not in_battle then
-      say("Stopspell is a battle spell. I are not in battle.")
+      say("Stopspell is a battle spell. I am not fighting anything!")
       return false
     end
     self:spell(5)
@@ -765,7 +765,7 @@ end
 function Player.hurtmore(self)
   if (AND(memory.readbyte(0xcf), 0x2) > 0) then
     if not in_battle then
-      say("Hurtmore is a battle spell. I are not in battle.")
+      say("Hurtmore is a battle spell. I am not fighting anything!")
       return false
     end
     self:spell(10)
@@ -790,7 +790,7 @@ function Player.herb (self)
     end
   end
   if features.herb_store then
-    say("I don't have any herbs or enough gold to buy one.")
+    say("I don't have any herbs, and I'm broke fool!")
   else
     say("I don't have any herbs.")
   end
@@ -856,7 +856,9 @@ function Player.go_to(self, x, y, m)
   else
     self.destination = { x = x, y = y, m = m }
     self.path_pointer = 2
-    self.mode.auto_battle = true
+    if not self.mode.fraidy_cat then
+      self:set_mode("autobattle")
+    end
     return true
   end
 end
@@ -1173,9 +1175,9 @@ end
 -- for battle detection (enemies or you runnign away)
 function running(address)
   if address == 0xefc8 then
-		battle_message(strings.enemyrun, player:get_tile())
+		battle_message(strings.enemyrun, player:get_tile()+1)
   else
-		battle_message(strings.playerrun, player:get_tile())
+		battle_message(strings.playerrun, player:get_tile()+1)
   end
   battle_mode(false, true)
 end
