@@ -12,7 +12,7 @@ strings = {
 		"I guess he didn't like me very much.",
 		"Come back here you coward!",
 		"Oh running away eh? Come back here and fight me! I'll bite your legs off!",
-		"Oh come on! Why did you even come over here if you were just going to run?",
+		"Oh come on! Why did you even come over here if you were just going to run away?",
 		"He was in quite a hurry.",
 		"That's right! You get on down the road and don't come back!"
 	},
@@ -23,7 +23,7 @@ strings = {
 		"You can't catch me son! Don't even try!",
 		"He was a fierce beast! With big fangs! What? Didn't you see the bones?",
 		"I think I soiled my armor.",
-		"Who, me? I wasn't running, I just had somewhere to be.. that wasn't anywhere near that %s."
+		"Who, me? I wasn't running, I just had somewhere to be...that wasn't anywhere near that %s."
 	},
   enemydefeat = {
 		"I have done well in defeating the %s.",
