@@ -185,9 +185,9 @@ function Map.set_tile(self, x, y, map_num, tile)
   if self.map[map_num] ~= nil and self.map[map_num][x+1] ~= nil and 
       self.map[map_num][x+1][y+1] ~= nil then
     self.map[map_num][x+1][y+1] = tile
+    -- update the tile cost in the node list
+    self.nodes[((map_num-1) * 128 * 128) + x * 128 + y + 1].cost = self:cost(x, y, map_num)
   end
-  -- update the tile cost in the node list
-  self.nodes[((map_num-1) * 128 * 128) + x * 128 + y + 1].cost = self:cost(x, y, map_num)
 end
 
 function Map.get_tile(self, x, y, map_num)
