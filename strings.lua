@@ -10,12 +10,13 @@ strings = {
 	},
   enemyrun = {
 		"I suppose he didst not likest me much.",
-		"Comest back here thou coward!",
+		"Comest back here thee coward!",
 		"Oh running away eh? Come back here and fight me! I'll bite your legs off!",
-		"Oh comest on! Why did thou even comest over here if thou were just to runnest away?",
+		"Oh comest on! Why did thee even comest over here if thee were just to runnest away?",
 		"He was in quite a hurry.",
 		"That's right! You get on down the road and don't come back!",
-		"Fine, thou just goest. Leavest me liketh everyone else. Well, excepteth that clingy princess."
+		"Fine, just goest. Leavest me liketh everyone else. Well, excepteth that clingy princess.",
+		"Wait what just happened? That %s just disappeared!"
 	},
   playerrun = {
 		"Whew! That was scary!",
