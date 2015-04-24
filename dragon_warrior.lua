@@ -983,6 +983,7 @@ function Player.heal_thy_self(self)
   self.quiet = true
 	local returnvalue = false
   if self:get_hp() * 3 < self:max_hp() then
+		battle_messag(strings.lowhp)
     if self:healmore() then
       returnvalue = true
     elseif self:herb() then
