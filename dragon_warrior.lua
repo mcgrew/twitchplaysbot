@@ -132,6 +132,15 @@ function parsecommand(command)
       elseif string.sub(command, 1, 6) == "!grind" then
         player:set_mode("grind")
         return false
+      elseif string.sub(command, 1, 8) == "!levelup" then
+        local levelup = player:next_level()
+        if levelup == 0 then
+          say("I have already reached the maximum level")
+        else
+          say(("To reach the next level I need %d more experience points")
+               :format(levelup))
+        end
+        return false
       elseif string.sub(command, 1, 6) == "go to " then
         player:go_to_name(string.sub(command, 7))
       else
@@ -290,6 +299,18 @@ end
 
 function Player.get_level(self)
   return memory.readbyte(0xc7)
+end
+
+function Player.next_level(self)
+  if self:get_level() == features.level_cap then
+    return 0
+  end
+  for i=1,#self.levels do
+    if self.levels[i] > self:get_experience() then
+      return self.levels[i] - self:get_experience()
+    end
+  end
+  return 0
 end
 
 function Player.get_hp(self)
@@ -991,6 +1012,7 @@ function Player.find_closest(self, coords_list)
   end
   if #new_list == 0 then new_list = coords_list end
   for i=1,#new_list do
+    emu.frameadvance()
     current = new_list[i]
     local path = map:path(self:get_x(), self:get_y(), self:get_map(), 
                                   current.x, current.y, current.m)
@@ -1002,6 +1024,7 @@ function Player.find_closest(self, coords_list)
       end
     end
   end
+  emu.frameadvance()
   return closest
 end
 
