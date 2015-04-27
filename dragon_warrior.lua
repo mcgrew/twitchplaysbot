@@ -46,13 +46,13 @@ end
 
 function battle_message(strings, enemy_type)
   if enemy_type == nil then
-		say(strings[math.random(#strings)])
-	else
-		local enemy_name = enemy.types[enemy_type]
-		if enemy_name ~= nil then
-			say(strings[math.random(#strings)]:format(enemy_name))
-		end
-	end
+    say(strings[math.random(#strings)])
+  else
+    local enemy_name = enemy.types[enemy_type]
+    if enemy_name ~= nil then
+      say(strings[math.random(#strings)]:format(enemy_name))
+    end
+  end
 end
 
 
@@ -252,9 +252,9 @@ function Player.update (self)
     map:set_tile(self:get_x(), self:get_y(), self:get_map(), self:get_tile())
   end
 
-	if hp == 0 and self.change.hp ~= 0 then
-		battle_message(strings.playerdefeat, player:get_tile()+1)
-	end
+  if hp == 0 and self.change.hp ~= 0 then
+    battle_message(strings.playerdefeat, player:get_tile()+1)
+  end
 
   -- update grind mode if needed
   if not debug.offline and features.grind_mode and not player.mode.grind and 
@@ -788,7 +788,7 @@ function Player.herb (self)
   end
   if features.herb_store then
     if (self:add_gold(-self.level * self.level)) then 
-			say(("I purchased an herb for %dG"):format(self.level * self.level))
+      say(("I purchased an herb for %dG"):format(self.level * self.level))
       self:add_herb()
       self:item(1)
       return true
@@ -874,10 +874,10 @@ end
 -- end
 
 function Player.mode_autonav(self, enable)
-	if enable == false then
-		self.path = nil
-		self.destination = nil
-	end
+  if enable == false then
+    self.path = nil
+    self.destination = nil
+  end
   return self.path ~= nil and self.path[self.path_pointer] ~= nil
 end
 
@@ -886,7 +886,7 @@ function Player.follow_path(self, force)
   if not features.autonav then
     return false
   end
-	if self:mode_autonav() and self:heal_thy_self() then wait(240) end
+  if self:mode_autonav() and self:heal_thy_self() then wait(240) end
   if force or not in_battle then
     if self.destination ~= nil then
       if self.path ~= nil then
@@ -986,9 +986,9 @@ end
 
 function Player.heal_thy_self(self)
   self.quiet = true
-	local returnvalue = false
+  local returnvalue = false
   if self:get_hp() * 3 < self:max_hp() then
-		battle_message(strings.lowhp)
+    battle_message(strings.lowhp)
     if self:healmore() then
       returnvalue = true
     elseif self:herb() then
@@ -997,11 +997,11 @@ function Player.heal_thy_self(self)
       returnvalue = true
     end
   elseif not in_battle and self:get_hp() + 30 < self:max_hp() and (self:get_level() < 17) then
-		if self:heal() then
-			returnvalue = true
-		elseif self:herb() then
-			returnvalue = true
-		end
+    if self:heal() then
+      returnvalue = true
+    elseif self:herb() then
+      returnvalue = true
+    end
   end
   self.quiet = false
   return returnvalue
@@ -1073,7 +1073,7 @@ function Enemy.update (self)
   -- hit points wrap below zero, so check for large increases.
   if in_battle and (self.hp == 0 or self.change.hp > 160) then
     battle_mode(false, false)
-		battle_message(strings.enemydefeat, player:get_tile()+1)
+    battle_message(strings.enemydefeat, player:get_tile()+1)
   end
 
 end
@@ -1089,7 +1089,7 @@ function Enemy.set_hp(self, hp)
   if (hp > 255 or hp < 0) then
     return false
   end
-	self.hp = hp
+  self.hp = hp
   memory.writebyte(0xe2, hp)
   return true
 end
@@ -1177,9 +1177,9 @@ end
 -- for battle detection (enemies or you runnign away)
 function running(address)
   if address == 0xefc8 then
-		battle_message(strings.enemyrun, player:get_tile()+1)
+    battle_message(strings.enemyrun, player:get_tile()+1)
   else
-		battle_message(strings.playerrun, player:get_tile()+1)
+    battle_message(strings.playerrun, player:get_tile()+1)
   end
   battle_mode(false, true)
 end
@@ -1189,7 +1189,7 @@ memory.registerexecute(0xe8a4, running)
 -- A thing draws near!
 function encounter(address)
   battle_message(strings.encounter, memory.readbyte(0x3c)+1)
-	pre_battle = true
+  pre_battle = true
 end
 memory.registerexecute(0xcf44, encounter)
 
