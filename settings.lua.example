@@ -18,5 +18,6 @@ features = {
   enemy_hp = true,  -- show enemy hit points
   grind_mode = true, -- automatic grinding
 	repulsive = true, -- no lower level enemy encounters
-  autonav = true -- automatic navigation
+  autonav = true, -- automatic navigation
+  level_cap = 30
 }

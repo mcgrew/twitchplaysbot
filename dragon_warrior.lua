@@ -199,9 +199,12 @@ Player = {
 
 function Player.update (self)
 
-  --level cap (20)
-  if self:get_experience() > 26000 then
-    self:set_experience(26000)
+  --level cap
+  if features.level_cap ~= nil then
+    local exp_cap = self.levels[features.level_cap]
+    if self:get_experience() > exp_cap then
+      self:set_experience(exp_cap)
+    end
   end
 
   -- read in the values from memory.
@@ -240,6 +243,7 @@ function Player.update (self)
   end
   if (self.current_map ~= self.get_map()) then
     self.valid_tile = false
+    map:reset_doors()
   end
   self.map_x = map_x
   self.map_y = map_y
@@ -849,10 +853,11 @@ function Player.grind(self)
   end
 end
 
-function Player.go_to(self, x, y, m)
+function Player.go_to(self, x, y, m, callback)
   if not features.autonav then
     return false
   end
+
   self.path = map:path(self:get_x(), self:get_y(), self:get_map(), x, y, m)
   if self.path == nil then
     say("I don't know how to get there. Little help?")
@@ -894,11 +899,6 @@ function Player.follow_path(self, force)
         if node == nil then 
           return false
         end
-        -- see if we're on stairs
---         if self:stairs_trigger() then
---           self.last_tile = self:get_tile()
---           return self:stairs()
---         end
         if node.m ~= self:get_map() then
           local command = nil
           local warp = map:warp(self:get_x(), self:get_y(), 
@@ -930,6 +930,11 @@ function Player.move_to_node(self, node)
   end
   local result
   print(("Next: X %d, Y %d"):format(node.x, node.y))
+  if map:is_door(node.x, node.y, node.m) then
+    self:door()
+    map:mark_door(node.x, node.y, node.m)
+    wait(60)
+  end
   -- this could be more elegant/efficient
   if     (map_x - node.x ==  1) then
     result = self:left()
@@ -946,17 +951,60 @@ function Player.move_to_node(self, node)
   return result
 end
 
-function Player.go_to_name(self, location)
+function Player.go_to_name(self, location, callback)
   if not features.autonav then
     return false
   end
+  self.navcallback = callback
   local loc = map.locations[location]
   if loc == nil then
-    say(("%s? I've never heard of it"):format(location))
-    return false
+    loc = self:go_to_shop(location) 
+    if loc == nil then 
+      say(("%s? I've never heard of it"):format(location))
+      return false
+    end
   end
-  return self:go_to(loc.x, loc.y, loc.m)
+  return self:go_to(loc.x, loc.y, loc.m, callback)
 end
+
+function Player.go_to_shop(self, shop)
+  if shop == "inn" then
+    return self:find_closest(map.shops.inn)
+  elseif shop == "weapon shop" then
+    return self:find_closest(map.shops.weapon)
+  elseif shop == "tool shop" then
+    return self:find_closest(map.shops.tool)
+  elseif shop == "key shop" then
+    return self:find_closest(map.shops.key)
+  end
+  return nil
+end
+
+function Player.find_closest(self, coords_list)
+  local closest
+  local closest_length = 99999999999
+  local new_list = {}
+  for i=1,#coords_list do
+    if coords_list[i].m == self:get_map() then
+      table.insert(new_list, coords_list[i])
+    end
+  end
+  if #new_list == 0 then new_list = coords_list end
+  for i=1,#new_list do
+    current = new_list[i]
+    local path = map:path(self:get_x(), self:get_y(), self:get_map(), 
+                                  current.x, current.y, current.m)
+    if path ~= nil then 
+      local current_length = map:path_length(path)
+      if current_length < closest_length then
+        closest_length = current_length
+        closest = current
+      end
+    end
+  end
+  return closest
+end
+
 
 function Player.set_mode(self, mode)
   if mode == "autobattle" then
@@ -1093,6 +1141,9 @@ function Enemy.set_hp(self, hp)
   memory.writebyte(0xe2, hp)
   return true
 end
+
+require("data")
+
 -- 
 --  Draws any hud elements, such as the enemy hit points
 -- 
@@ -1116,13 +1167,9 @@ function overlay()
       string.format( "Frame:  %d", emu.framecount()), "white", "black")
     gui.text(8, 24,
       string.format( "Map: [%3d,%3d,%3d]",
-        memory.readbyte(0x45), memory.readbyte(0x8e), memory.readbyte(0x8f)
+        memory.readbyte(0x8e), memory.readbyte(0x8f), memory.readbyte(0x45)
       ), "white", "black")
-    gui.text(8, 32,
-      string.format( "Player: [%3d,%3d,%3d]",
-        memory.readbyte(0x45), memory.readbyte(0x3a), memory.readbyte(0x3b)
-      ), "white", "black")
-    gui.text(8, 40, 
+    gui.text(8, 32, 
       string.format( "Tile:  %d", memory.readbyte(0xe0)), "white", "black")
     if player.path ~= nil then
       local pathnode = player.path[player.path_pointer]

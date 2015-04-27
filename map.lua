@@ -1,122 +1,6 @@
 require("astar")
 
 Map = {
-  warps = {
-    { from = {x= 43, y= 43, m= 1}, to = {x= 11, y= 29, m= 4}, command = nil },   --tantegel
-    { from = {x=nil, y=  0, m= 4}, to = {x= 43, y= 43, m= 1}, command = "up" },
-    { from = {x=nil, y= 29, m= 4}, to = {x= 43, y= 43, m= 1}, command = "down" },
-    { from = {x=  0, y=nil, m= 4}, to = {x= 43, y= 43, m= 1}, command = "left" },
-    { from = {x= 29, y=nil, m= 4}, to = {x= 43, y= 43, m= 1}, command = "right" },
-    { from = {x=  7, y=  7, m= 4}, to = {x=  8, y=  8, m= 5}, command = "stairs" },
-    { from = {x=  8, y=  8, m= 5}, to = {x=  7, y=  7, m= 4}, command = "stairs" },
-
-    { from = {x= 48, y= 41, m= 1}, to = {x=  8, y=  0, m= 8}, command = nil },   --brecconary
-    { from = {x=nil, y=  0, m= 8}, to = {x= 48, y= 41, m= 1}, command = "up" },
-    { from = {x=  0, y=nil, m= 8}, to = {x= 48, y= 41, m= 1}, command = "left" },
-    { from = {x= 29, y=nil, m= 8}, to = {x= 48, y= 41, m= 1}, command = "right" },
-
-    { from = {x=  2, y=  2, m= 1}, to = {x=  0, y= 14, m= 9}, command = nil },   --garinham
-    { from = {x=nil, y=  0, m= 9}, to = {x=  2, y=  2, m= 1}, command = "up" },
-    { from = {x=nil, y= 19, m= 9}, to = {x=  2, y=  2, m= 1}, command = "down" },
-    { from = {x=  0, y=nil, m= 9}, to = {x=  2, y=  2, m= 1}, command = "left" },
-    { from = {x= 19, y=nil, m= 9}, to = {x=  2, y=  2, m= 1}, command = "right" },
-
-    { from = {x= 19, y=  0, m= 9}, to = {x=  6, y= 11, m=24}, command = "stairs" }, --grave of garin
-    { from = {x=  6, y= 11, m=24}, to = {x= 19, y=  0, m= 9}, command = "stairs" }, 
-    { from = {x=  1, y= 18, m=24}, to = {x= 11, y=  2, m=25}, command = "stairs" },
-    { from = {x= 11, y=  2, m=25}, to = {x=  1, y= 18, m=24}, command = "stairs" },
-    { from = {x= 12, y=  1, m=25}, to = {x= 18, y=  1, m=26}, command = "stairs" },
-    { from = {x= 18, y=  1, m=26}, to = {x= 12, y=  1, m=25}, command = "stairs" },
-    { from = {x= 12, y= 10, m=25}, to = {x= 18, y= 13, m=26}, command = "stairs" },
-    { from = {x= 18, y= 13, m=26}, to = {x= 12, y= 10, m=25}, command = "stairs" },
-    { from = {x= 14, y=  1, m=26}, to = {x=  1, y=  1, m=25}, command = "stairs" },
-    { from = {x=  1, y=  1, m=25}, to = {x= 14, y=  1, m=26}, command = "stairs" },
-    { from = {x=  5, y=  6, m=25}, to = {x=  6, y= 11, m=26}, command = "stairs" },
-    { from = {x=  6, y= 11, m=26}, to = {x=  5, y=  6, m=25}, command = "stairs" },
-    { from = {x=  1, y= 10, m=25}, to = {x=  2, y= 17, m=26}, command = "stairs" },
-    { from = {x=  2, y= 17, m=26}, to = {x=  1, y= 10, m=25}, command = "stairs" },
-    { from = {x=  9, y=  5, m=26}, to = {x=  0, y=  4, m=27}, command = "stairs" },
-    { from = {x=  0, y=  4, m=27}, to = {x=  9, y=  5, m=26}, command = "stairs" },
-    { from = {x=  5, y=  4, m=27}, to = {x= 10, y=  9, m=26}, command = "stairs" },
-    { from = {x= 10, y=  9, m=26}, to = {x=  5, y=  4, m=27}, command = "stairs" },
-
-    { from = {x=104, y= 10, m= 1}, to = {x=  0, y= 14, m= 7}, command = nil },   --kol
-    { from = {x=nil, y=  0, m= 7}, to = {x=104, y= 10, m= 1}, command = "up" },
-    { from = {x=nil, y= 23, m= 7}, to = {x=104, y= 10, m= 1}, command = "down" },
-    { from = {x=  0, y=nil, m= 7}, to = {x=104, y= 10, m= 1}, command = "left" },
-    { from = {x= 23, y=nil, m= 7}, to = {x=104, y= 10, m= 1}, command = "right" },
-
-    { from = {x=104, y= 44, m= 1}, to = {x=  0, y=  0, m=21}, command = nil },   -- swamp cave
-    { from = {x=  0, y=  0, m=21}, to = {x=104, y= 44, m= 1}, command = "stairs"},
-    { from = {x=  0, y= 29, m=21}, to = {x=104, y= 49, m= 1}, command = "stairs" },
-    { from = {x=104, y= 49, m= 1}, to = {x=  0, y= 29, m=21}, command = nil },
-
-    { from = {x=102, y= 72, m= 1}, to = {x= 29, y= 14, m=11}, command = nil },   --rimuldar
-    { from = {x=nil, y=  0, m=11}, to = {x=102, y= 72, m= 1}, command = "up" },
-    { from = {x=nil, y= 29, m=11}, to = {x=102, y= 72, m= 1}, command = "down" },
-    { from = {x=  0, y=nil, m=11}, to = {x=102, y= 72, m= 1}, command = "left" },
-    { from = {x= 29, y=nil, m=11}, to = {x=102, y= 72, m= 1}, command = "right" },
-
-    { from = {x= 73, y=102, m= 1}, to = {x= 15, y=  0, m=10}, command = nil },   --cantlin
-    { from = {x=nil, y=  0, m=10}, to = {x= 73, y=102, m= 1}, command = "up" },
-    { from = {x=nil, y= 29, m=10}, to = {x= 73, y=102, m= 1}, command = "down" },
-    { from = {x=  0, y=nil, m=10}, to = {x= 73, y=102, m= 1}, command = "left" },
-    { from = {x= 29, y=nil, m=10}, to = {x= 73, y=102, m= 1}, command = "right" },
-
-    { from = {x= 25, y= 89, m= 1}, to = {x=  0, y= 10, m= 3}, command = nil },   --hauksness
-    { from = {x=nil, y=  0, m= 3}, to = {x= 25, y= 89, m= 1}, command = "up" },
-    { from = {x=nil, y= 19, m= 3}, to = {x= 25, y= 89, m= 1}, command = "down" },
-    { from = {x=  0, y=nil, m= 3}, to = {x= 25, y= 89, m= 1}, command = "left" },
-    { from = {x= 19, y=nil, m= 3}, to = {x= 25, y= 89, m= 1}, command = "right" },
-
-    { from = {x= 48, y= 48, m= 1}, to = {x= 10, y= 19, m= 2}, command = nil },   --charlock
-    { from = {x=nil, y= 19, m= 2}, to = {x= 48, y= 48, m= 1}, command = "down" },
-
-    { from = {x= 10, y=  1, m= 2}, to = {x=  9, y=  0, m=15}, command = "stairs" },
-    { from = {x=  9, y=  0, m=15}, to = {x= 10, y=  1, m= 2}, command = "stairs" },
-    { from = {x=  8, y= 19, m=15}, to = {x=  5, y=  0, m=16}, command = "stairs" },
-    { from = {x=  5, y=  0, m=16}, to = {x=  8, y= 19, m=15}, command = "stairs" },
-    { from = {x=  3, y=  0, m=16}, to = {x=  7, y=  0, m=17}, command = "stairs" },
-    { from = {x=  7, y=  0, m=17}, to = {x=  3, y=  0, m=16}, command = "stairs" },
-    { from = {x=  5, y=  4, m=17}, to = {x=  0, y=  8, m=16}, command = "stairs" },
-    { from = {x=  0, y=  8, m=16}, to = {x=  5, y=  4, m=17}, command = "stairs" },
-    { from = {x=  1, y=  9, m=16}, to = {x=  0, y=  9, m=17}, command = "stairs" },
-    { from = {x=  0, y=  9, m=17}, to = {x=  1, y=  9, m=16}, command = "stairs" },
-    { from = {x=  1, y=  6, m=17}, to = {x=  0, y=  9, m=18}, command = "stairs" },
-    { from = {x=  0, y=  9, m=18}, to = {x=  1, y=  6, m=17}, command = "stairs" },
-    { from = {x=  8, y=  1, m=18}, to = {x=  4, y=  0, m=19}, command = "stairs" },
-    { from = {x=  4, y=  0, m=19}, to = {x=  8, y=  1, m=18}, command = "stairs" },
-    { from = {x=  5, y=  5, m=19}, to = {x=  0, y=  0, m=20}, command = "stairs" },
-    { from = {x=  0, y=  0, m=20}, to = {x=  5, y=  5, m=19}, command = "stairs" },
-    { from = {x=  9, y=  0, m=20}, to = {x=  0, y=  0, m=20}, command = "stairs" },
-    { from = {x=  7, y=  7, m=18}, to = {x=  7, y=  7, m=17}, command = "stairs" },
-    { from = {x=  7, y=  7, m=17}, to = {x=  7, y=  7, m=18}, command = "stairs" },
-    { from = {x=  2, y=  2, m=17}, to = {x=  9, y=  1, m=16}, command = "stairs" },
-    { from = {x=  9, y=  1, m=16}, to = {x=  2, y=  2, m=17}, command = "stairs" },
-    { from = {x=  8, y=  0, m=16}, to = {x= 15, y=  1, m=15}, command = "stairs" },
-    { from = {x= 15, y=  1, m=15}, to = {x=  8, y=  0, m=16}, command = "stairs" },
-    { from = {x= 13, y= 17, m=15}, to = {x=  4, y=  4, m=16}, command = "stairs" },
-    { from = {x=  4, y=  4, m=16}, to = {x= 13, y= 17, m=15}, command = "stairs" },
-    { from = {x=  2, y=  2, m=18}, to = {x=  9, y=  0, m=19}, command = "stairs" },
-    { from = {x=  9, y=  0, m=19}, to = {x=  2, y=  2, m=18}, command = "stairs" },
-    { from = {x=  0, y=  0, m=19}, to = {x=  0, y=  6, m=20}, command = "stairs" },
-    { from = {x=  0, y=  6, m=20}, to = {x=  0, y=  0, m=19}, command = "stairs" },
-    { from = {x=  9, y=  6, m=20}, to = {x= 10, y= 29, m= 6}, command = "stairs" },
-    { from = {x= 10, y= 29, m= 6}, to = {x=  9, y=  6, m=20}, command = "stairs" },
-  },
-  locations = {
-    ['the king' ] = {x=  3, y=  4, m= 5        },
-    ['magic man'] = {x= 18, y= 26, m= 4        },
-    tantegel      = {x= 43, y= 43, m= 1, map= 4},
-    brecconary    = {x= 48, y= 41, m= 1, map= 8},
-    garinham      = {x=  2, y=  2, m= 1, map= 9},
-    kol           = {x=104, y= 10, m= 1, map= 7},
-    rimuldar      = {x=102, y= 72, m= 1, map=11},
-    cantlin       = {x= 73, y=102, m= 1, map=10},
-    hauksness     = {x= 25, y= 89, m= 1, map= 3},
---     dragonlord    = {x= 17, y= 24, m= 6        },
-    charlock      = {x= 48, y= 48, m= 1, map= 2}
-  }
 }
 
 
@@ -243,9 +127,24 @@ function Map.getnode(self, x, y, map_num)
 end
 
 function Map.path(self, from_x, from_y, from_map, to_x, to_y, to_map)
-  local start = self:getnode(from_x, from_y, from_map)
-  local goal  = self:getnode(  to_x,   to_y,   to_map)
+  local start
+  local goal
+  if to_x == nil then
+    start = self:getnode(player:get_x(), player:get_y(), player:get_map())
+    goal  = self:getnode(from_x, from_y, from_map)
+  else
+    start = self:getnode(from_x, from_y, from_map)
+    goal  = self:getnode(  to_x,   to_y,   to_map)
+  end
   return path(start, goal, self.nodes, false, is_valid)
+end
+
+function Map.path_length(self, path)
+  local length = 0
+  for i=1,#path do
+    length = length + path[i].cost
+  end
+  return length
 end
 
 function Map.warp(self, x, y, map_num) 
@@ -261,6 +160,33 @@ function Map.warp(self, x, y, map_num)
     end
   end
   return nil
+end
+
+function Map.is_door(self, x, y, map_num)
+  for i=1,#self.doors do
+    local door = self.doors[i]
+    if door.x == x and door.y == y and 
+       door.m == map_num and door.open ~= true then
+      return true
+    end
+  end
+  return false
+end
+
+function Map.mark_door(self, x, y, map_num)
+  for i=1,#self.doors do
+    local door = self.doors[i]
+    if door.x == x and door.y == y and door.m == map_num then
+      door.open = true
+    end
+  end
+end
+
+function Map.reset_doors(self)
+  for i=1,#self.doors do
+    local door = self.doors[i]
+      door.open = false
+  end
 end
 
 -- Overrides for astar
