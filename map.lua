@@ -197,6 +197,35 @@ function Map.name_from_map(self, mapnum)
   end
 end
 
+function table_contains (tab, value)
+  for _,v in pairs(tab) do
+    if v == value then return true end
+  end
+  return false
+end
+
+function Map.shops_filtered(self, item, map_num)
+  local filtered_table = {}
+  local temp_table
+  for _,v in pairs(self.shops) do
+    temp_table = {}
+    for _,w in pairs(v) do
+      if item == nil or (w.items ~= nil and table_contains(w.items, item)) then
+        table.insert(temp_table, w)
+      end
+    end
+    for k,w in pairs(temp_table) do
+      if map_num ~= nil and w.m ~= map_num then 
+        table.remove(temp_table, k)
+      end
+    end
+  end
+  for _,v in pairs(temp_table) do
+    table.insert(filtered_table, v)
+  end
+  return filtered_table
+end
+
 -- Overrides for astar
 function is_valid(node1, node2)
   return math.abs(node1.x - node2.x) == 1 and node1.y == node2.y 

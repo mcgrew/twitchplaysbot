@@ -132,6 +132,8 @@ function parsecommand(command)
       elseif string.sub(command, 1, 6) == "!grind" then
         player:set_mode("grind")
         return false
+      elseif string.sub(command, 1, 4) == "!buy" then
+        player:buy(string.sub(command, 6))
       elseif string.sub(command, 1, 8) == "!levelup" then
         local levelup = player:next_level()
         if levelup == 0 then
@@ -936,10 +938,8 @@ function Player.follow_path(self, force)
             elseif self.destination_callback ~= nil then
               local done = self.destination_callback()
               if done then
-                say("done")
                 self.destination_callback = nil
               else
-                say("working...")
               end
               return true
             end
@@ -1160,6 +1160,33 @@ Enemy = {
 
   }
 }
+
+function herb_callback()
+  if player:herb_count() < 6 then
+    pressa()
+    return false
+  end
+  wait(300)
+  player.cancel()
+  wait(120)
+  player.cancel()
+  return true
+end
+
+function Player.buy (self, what)
+  print(what)
+  if what == "herbs" then
+    local shops = map:shops_filtered("herb", self:get_map())
+    print(#shops)
+    if #shops > 0 then
+      shop = shops[1]
+      print(shop.x, shop.y, shop.m)
+      self:go_to(shop.x, shop.y, shop.m, shop.commands, herb_callback)
+    else
+      say(("I don't think any shops here have %s."):format(what))
+    end
+  end
+end
 
 function Enemy.update (self)
   -- read in the values from memory.
