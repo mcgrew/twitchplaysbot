@@ -203,7 +203,9 @@ Player = {
   },
   path = nil,
   path_pointer = 1,
-  destination = nil
+  destination = nil,
+  destination_commands = nil,
+  destination_callback = nil
 }
 
 function Player.update (self)
@@ -874,11 +876,12 @@ function Player.grind(self)
   end
 end
 
-function Player.go_to(self, x, y, m, callback)
+function Player.go_to(self, x, y, m, commands, callback)
   if not features.autonav then
     return false
   end
-
+  self.destination_commands = commands
+  self.destination_callback = callback
   self.path = map:path(self:get_x(), self:get_y(), self:get_map(), x, y, m)
   if self.path == nil then
     say("I don't know how to get there. Little help?")
@@ -918,6 +921,30 @@ function Player.follow_path(self, force)
       if self.path ~= nil then
         local node = self.path[self.path_pointer]
         if node == nil then 
+
+          -- check for commands and callback for
+          -- things to do at the destination
+          if self.destination.x == player:get_x() and 
+             self.destination.y == player:get_y() and
+             self.destination.m == player:get_map() then
+            if self.destination_commands ~= nil then
+              for i=1,#self.destination_commands do
+                parsecommand(self.destination_commands[i])
+              end
+              self.destination_commands = nil
+              return true
+            elseif self.destination_callback ~= nil then
+              local done = self.destination_callback()
+              if done then
+                say("done")
+                self.destination_callback = nil
+              else
+                say("working...")
+              end
+              return true
+            end
+          end
+
           return false
         end
         if node.m ~= self:get_map() then
@@ -984,8 +1011,13 @@ function Player.go_to_name(self, location, callback)
       say(("%s? I've never heard of it"):format(location))
       return false
     end
+    if loc == false then
+      say(("There is no %s nearby"):format(location))
+      return false
+    end
   end
-  return self:go_to(loc.x, loc.y, loc.m, callback)
+  if callback == nil then callback = loc.callback end
+  return self:go_to(loc.x, loc.y, loc.m, loc.commands, callback)
 end
 
 function Player.go_to_shop(self, shop)
@@ -993,7 +1025,7 @@ function Player.go_to_shop(self, shop)
     return self:find_closest(map.shops.inn)
   elseif shop == "weapon shop" then
     return self:find_closest(map.shops.weapon)
-  elseif shop == "tool shop" then
+  elseif shop == "tool shop" or shop == "item shop" then
     return self:find_closest(map.shops.tool)
   elseif shop == "key shop" then
     return self:find_closest(map.shops.key)
@@ -1010,7 +1042,8 @@ function Player.find_closest(self, coords_list)
       table.insert(new_list, coords_list[i])
     end
   end
-  if #new_list == 0 then new_list = coords_list end
+--   if #new_list == 0 then new_list = coords_list end
+  if #new_list == 0 then return false end
   for i=1,#new_list do
     emu.frameadvance()
     current = new_list[i]
@@ -1169,6 +1202,7 @@ require("data")
 
 -- 
 --  Draws any hud elements, such as the enemy hit points
+--  and debug info
 -- 
 function overlay()
   enemy:show_hp()
@@ -1197,22 +1231,12 @@ function overlay()
     if player.path ~= nil then
       local pathnode = player.path[player.path_pointer]
       if pathnode ~= nil and pathnode.m ~= nil and pathnode.x ~= nil and pathnode.y ~= nil then
-        gui.text(8, 48,
+        gui.text(8, 40,
           string.format( "Nextnode: [%3d,%3d,%3d] [%d]",
             pathnode.m, pathnode.x, pathnode.y, player.path_pointer
           ), "white", "black")
       end
     end
-
---     gui.text(8, 32,
---       string.format( "Player Pos: [%3d,%3d]",
---         memory.readbyte(0x3a), memory.readbyte(0x3b)
---       ), "white", "black")
---     gui.text(8, 40,
---       string.format( "Cursor: [%3d,%3d]",
---         memory.readbyte(0xd8), memory.readbyte(0xd9)
-----        ), "white", "black")
-
   end
 
 --  local zone = math.floor(memory.readbyte(0x3b) / 15) * 4 + memory.readbyte(0x3a) / 30

@@ -189,6 +189,14 @@ function Map.reset_doors(self)
   end
 end
 
+function Map.name_from_map(self, mapnum)
+  for k,v in pairs(self.locations) do
+    if v.map == mapnum then
+      return k
+    end
+  end
+end
+
 -- Overrides for astar
 function is_valid(node1, node2)
   return math.abs(node1.x - node2.x) == 1 and node1.y == node2.y 

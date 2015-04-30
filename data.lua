@@ -55,6 +55,20 @@ Map.doors = {
     { x=26, y= 9, m=10}
 }
 
+-- callback to execute for inn
+function inn_callback ()
+  if player:get_hp() < player:max_hp() or
+     player:get_mp() < player:max_mp() then
+    pressa()
+    return false
+  end
+  wait(300)
+  pressb()
+  wait(120)
+  pressb()
+  return true
+end
+
 Map.shops = {
   tool = {
     { x=23, y=25, m= 8, commands = {"right", "talk"}, items = { --brecconary
@@ -151,13 +165,14 @@ Map.shops = {
     { x=27, y= 8, m=10, commands = {"up", "talk"}},   --cantlin
   },
   inn = {
-    { x= 8, y=21, m= 8, commands = {"right", "talk"}}, --brecconary
-    { x=15, y=15, m= 9, commands = {"right", "talk"}}, --garinham
-    { x=19, y= 2, m= 7, commands = {"down",  "talk"}}, --kol
-    { x=18, y=18, m=11, commands = {"left",  "talk"}}, --rimuldar
-    { x= 8, y= 5, m=10, commands = {"up",  "talk"}}, --rimuldar
+    { x= 8, y=21, m= 8, commands = {"right", "talk"}, callback=inn_callback}, --brecconary
+    { x=15, y=15, m= 9, commands = {"right", "talk"}, callback=inn_callback}, --garinham
+    { x=19, y= 2, m= 7, commands = {"down",  "talk"}, callback=inn_callback}, --kol
+    { x=18, y=18, m=11, commands = {"left",  "talk"}, callback=inn_callback}, --rimuldar
+    { x= 8, y= 5, m=10, commands = {"up",  "talk"}, callback=inn_callback}, --rimuldar
   }
 }
+
 
 Map.warps = {
   { from = {x= 43, y= 43, m= 1}, to = {x= 11, y= 29, m= 4}, command = nil },   --tantegel
