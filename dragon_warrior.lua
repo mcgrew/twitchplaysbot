@@ -817,7 +817,10 @@ function Player.herb (self)
   end
   if features.herb_store then
     if (self:add_gold(-self.level * self.level)) then 
+      local quiet = self.quiet
+      self.quiet = false
       say(("I purchased an herb for %dG"):format(self.level * self.level))
+      self.quiet = quiet
       self:add_herb()
       self:item(1)
       return true
@@ -1099,9 +1102,9 @@ function Player.heal_thy_self(self)
     battle_message(strings.lowhp)
     if self:healmore() then
       returnvalue = true
-    elseif self:herb() then
-      returnvalue = true
     elseif self:heal() then 
+      returnvalue = true
+    elseif self:herb() then
       returnvalue = true
     end
   elseif not in_battle and self:get_hp() + 30 < self:max_hp() and (self:get_level() < 17) then
