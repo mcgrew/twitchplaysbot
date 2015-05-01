@@ -281,8 +281,8 @@ Map.warps = {
   }
 
 Map.locations = {
-  ['the king' ] = {x=  3, y=  4, m= 5        },
-  ['magic man'] = {x= 18, y= 26, m= 4        },
+  ['the king' ] = {x=  3, y=  4, m= 5, commands = { "up", "talk" }},
+  ['magic man'] = {x= 18, y= 26, m= 4, commands = { "right", "talk" }},
   tantegel      = {x= 43, y= 43, m= 1, map= 4},
   brecconary    = {x= 48, y= 41, m= 1, map= 8},
   garinham      = {x=  2, y=  2, m= 1, map= 9},
@@ -290,7 +290,7 @@ Map.locations = {
   rimuldar      = {x=102, y= 72, m= 1, map=11},
   cantlin       = {x= 73, y=102, m= 1, map=10},
   hauksness     = {x= 25, y= 89, m= 1, map= 3},
--- dragonlord    = {x= 17, y= 24, m= 6        },
+-- dragonlord    = {x= 17, y= 24, m= 6         },
   charlock      = {x= 48, y= 48, m= 1, map= 2}
 }
 
