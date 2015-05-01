@@ -206,22 +206,17 @@ end
 
 function Map.shops_filtered(self, item, map_num)
   local filtered_table = {}
-  local temp_table
   for _,v in pairs(self.shops) do
-    temp_table = {}
     for _,w in pairs(v) do
       if item == nil or (w.items ~= nil and table_contains(w.items, item)) then
-        table.insert(temp_table, w)
+        table.insert(filtered_table, w)
       end
     end
-    for k,w in pairs(temp_table) do
-      if map_num ~= nil and w.m ~= map_num then 
-        table.remove(temp_table, k)
+    for i=#filtered_table,1,-1 do
+      if map_num ~= nil and filtered_table[i].m ~= map_num then 
+        table.remove(filtered_table, i)
       end
     end
-  end
-  for _,v in pairs(temp_table) do
-    table.insert(filtered_table, v)
   end
   return filtered_table
 end

@@ -74,9 +74,9 @@ function parsecommand(command)
       elseif command == "b" then
         pressb()
       elseif string.sub(command, 1, 5) == "start" then
-        pressselect()
-      elseif string.sub(command, 1, 6) == "select" then
         pressstart()
+      elseif string.sub(command, 1, 6) == "select" then
+        pressselect()
       elseif string.sub(command, 1, 4) == "talk" then
         player:talk()
       elseif string.sub(command, 1, 6) == "status" then
@@ -1079,6 +1079,10 @@ function Player.set_mode(self, mode)
     self.mode.fraidy_cat = false
     self:mode_autonav(false)
     self.mode.explore    = false
+    self.destination = nil
+    self.path = nil
+    self.destination_commands = nil
+    self.destination_callback = nil
   elseif features.grind_mode and mode == "grind" then
     self.mode.grind = true
     self.mode.auto_battle = false
@@ -1162,13 +1166,15 @@ Enemy = {
 }
 
 function herb_callback()
-  if player:herb_count() < 6 then
+  if player:get_herbs() < 6 then
     pressa()
     return false
   end
-  wait(300)
-  player.cancel()
   wait(120)
+  player.cancel()
+  wait(60)
+  player.cancel()
+  wait(60)
   player.cancel()
   return true
 end
@@ -1304,15 +1310,12 @@ function running(address)
   end
   battle_mode(false, true)
 end
-memory.registerexecute(0xefc8, running)
-memory.registerexecute(0xe8a4, running)
 
 -- A thing draws near!
 function encounter(address)
   battle_message(strings.encounter, memory.readbyte(0x3c)+1)
   pre_battle = true
 end
-memory.registerexecute(0xcf44, encounter)
 
 -- this doesn't work
 -- function onexit()
@@ -1322,42 +1325,49 @@ memory.registerexecute(0xcf44, encounter)
 -- emu.registerexit(onexit)
 
 -- main loop
--- savestate.load(savestate.object(1))
-irc.initialize(irc.settings)
-if not debug.offline then
-  irc.connect()
-end
-player = Player
-enemy = Enemy
-player.last_command = emu.framecount()
-enemy:update()
-player:update()
-gui.register(overlay)
-emu.registerafter(update)
+function main()
+  -- savestate.load(savestate.object(1))
+  memory.registerexecute(0xefc8, running)
+  memory.registerexecute(0xe8a4, running)
+  memory.registerexecute(0xcf44, encounter)
 
-while(true) do
-  -- auto stairs
---   if ((player.tile == TILE.STAIRS_UP or player.tile == TILE.STAIRS_DOWN) and
---       not (player.last_tile == TILE.STAIRS_UP or 
---            player.last_tile == TILE.STAIRS_DOWN)) then
---     player.last_tile = player.tile
---     player:stairs()
---   end
+  irc.initialize(irc.settings)
   if not debug.offline then
-    irc.read()
-    if irc.messages_size() > 0 then
-      msg = irc.message()
-      if msg ~= nil then
-        command = string.lower(msg.message)
-        if (parsecommand(command)) then
-          player.last_command = emu.framecount()
-          player.mode.grind = false
+    irc.connect()
+  end
+  player = Player
+  enemy = Enemy
+  player.last_command = emu.framecount()
+  enemy:update()
+  player:update()
+  gui.register(overlay)
+  emu.registerafter(update)
+
+  while(true) do
+    -- auto stairs
+  --   if ((player.tile == TILE.STAIRS_UP or player.tile == TILE.STAIRS_DOWN) and
+  --       not (player.last_tile == TILE.STAIRS_UP or 
+  --            player.last_tile == TILE.STAIRS_DOWN)) then
+  --     player.last_tile = player.tile
+  --     player:stairs()
+  --   end
+    if not debug.offline then
+      irc.read()
+      if irc.messages_size() > 0 then
+        msg = irc.message()
+        if msg ~= nil then
+          command = string.lower(msg.message)
+          if (parsecommand(command)) then
+            player.last_command = emu.framecount()
+            player.mode.grind = false
+          end
         end
       end
     end
+    player:grind()
+    player:follow_path()
+    emu.frameadvance()
   end
-  player:grind()
-  player:follow_path()
-  emu.frameadvance()
 end
 
+main()
