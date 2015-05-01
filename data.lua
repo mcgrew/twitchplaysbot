@@ -281,7 +281,8 @@ Map.warps = {
   }
 
 Map.locations = {
-  ['the king' ] = {x=  3, y=  4, m= 5, commands = { "up", "talk" }},
+  ['the king' ] = {x=  3, y=  4, m= 5, commands = { "up", "talk" }, 
+    callback = function() for i=1,6 do wait(90); pressa() end return true end },
   ['magic man'] = {x= 18, y= 26, m= 4, commands = { "right", "talk" }},
   tantegel      = {x= 43, y= 43, m= 1, map= 4},
   brecconary    = {x= 48, y= 41, m= 1, map= 8},
