@@ -291,6 +291,8 @@ Map.locations = {
   rimuldar      = {x=102, y= 72, m= 1, map=11},
   cantlin       = {x= 73, y=102, m= 1, map=10},
   hauksness     = {x= 25, y= 89, m= 1, map= 3},
+  ['northern shrine'] = {x= 81, y=  1, m= 1, map=13},
+  ['southern shrine'] = {x=108, y=109, m= 1, map=14},
 -- dragonlord    = {x= 17, y= 24, m= 6         },
   charlock      = {x= 48, y= 48, m= 1, map= 2}
 }
