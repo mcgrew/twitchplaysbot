@@ -134,6 +134,8 @@ function parsecommand(command)
         return false
       elseif string.sub(command, 1, 4) == "!buy" then
         player:buy(string.sub(command, 6))
+      elseif string.sub(command, 1, 3) == "buy" then
+        player:buy(string.sub(command, 5))
       elseif string.sub(command, 1, 8) == "!levelup" then
         local levelup = player:next_level()
         if levelup == 0 then
