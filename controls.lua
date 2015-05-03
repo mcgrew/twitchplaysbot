@@ -76,7 +76,7 @@ function pressstart(frames)
 		frames = 5
 	end
 	input = {}
-	input.select = true
+	input.start = true
 	for i=1,frames do
 		joypad.set(1, input)
 		emu.frameadvance()
