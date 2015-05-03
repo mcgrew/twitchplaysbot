@@ -57,7 +57,6 @@ end
 
 
 function parsecommand(command, nick)
-      print(nick)
       local c = tonumber(string.sub(command, -2))
       if c == nil then
         c = tonumber(string.sub(command, -1))
@@ -1189,13 +1188,10 @@ function herb_callback()
 end
 
 function Player.buy (self, what)
-  print(what)
   if what == "herbs" then
     local shops = map:shops_filtered("herb", self:get_map())
-    print(#shops)
     if #shops > 0 then
       shop = shops[1]
-      print(shop.x, shop.y, shop.m)
       self:go_to(shop.x, shop.y, shop.m, shop.commands, herb_callback)
     else
       say(("I don't think any shops here have %s."):format(what))
@@ -1292,7 +1288,6 @@ function update()
     map:dump()
      if (emu.framecount() % 1000 == 0) then
   --    savestate.persist(savestate.object(1))
-       print(irc.user_isop("mcgrew"), irc.user_isop("sirerdrick"))
      end
     -- update the player and enemy info every 1/4 second
     if (emu.framecount() % 15 == 0) then
@@ -1371,7 +1366,6 @@ function main()
       if irc.messages_size() > 0 then
         msg = irc.message()
         if msg ~= nil then
-          print(msg.nick, msg.message)
           local command = string.lower(msg.message)
           local user = string.lower(msg.nick)
           if parsecommand(command, user) then
