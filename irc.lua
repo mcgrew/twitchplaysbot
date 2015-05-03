@@ -1,4 +1,5 @@
 local socket = require("socket")
+local table = require("table")
 local io = io
 local string = string
 local emu = emu
@@ -15,6 +16,8 @@ local messages = {
 	size = -1
 }
 local connected = false
+
+local ops = {}
 
 function initialize(settings)
 	host = settings.host
@@ -65,10 +68,14 @@ function read()
 				connected = true
 			end
 		else
-			emu.print(buffer)
+      if #buffer > 0 then
+        emu.print(buffer)
+      end
 		end
 		if buffer ~= nil then
-			emu.print(buffer)
+      if #buffer > 0 then
+        emu.print(buffer)
+      end
 			io.flush()
 			if string.sub(buffer,1,4) == "PING" then
 				send(string.gsub(buffer,"PING","PONG",1))
@@ -77,6 +84,9 @@ function read()
 				if cmd == "376" then
 					send("JOIN "..channel)
 				end
+        if cmd == "353" then
+          _parseops(param)
+        end
 				if param ~= nil then
 					param = string.sub(param,2)
 					param1, param2 = string.match(param,"^([^:]+) :(.*)$")
@@ -87,6 +97,19 @@ function read()
 						messages[messages.size].nick = user
 						messages[messages.size].message = param2
 					end
+					if cmd == "PART" or cmd == "QUIT" then
+						user, userhost = string.match(prefix,"^([^!]+)!(.*)$")
+            _removeop(user)
+          end
+					if cmd == "MODE" then
+						user, userhost = string.match(prefix,"^([^!]+)!(.*)$")
+            modechange, modeuser = string.match(param, "([+-]o) (.*)")
+            if modechange == "+o" then
+              _addop(modeuser)
+            elseif modechange == "-o" then
+              _removeop(modeuser)
+            end
+          end
 				end
 			end
 		end
@@ -116,3 +139,48 @@ end
 function messages_size()
    return messages.size
 end
+
+function _parseops(param)
+  local nicks = string.match(param, "^.*:(.*)")
+  for i=1,#nicks do
+    if string.sub(nicks, i, i) == "@" then
+      for j=i,#nicks do
+        if string.sub(nicks, j, j) == " " then
+          table.insert(ops, string.sub(nicks, i+1, j-1))
+          break
+        end
+        if j == #nicks then
+          table.insert(ops, string.sub(nicks, i+1))
+          break
+        end
+      end
+    end
+  end
+end
+
+function _addop(nick)
+  table.insert(ops, string.lower(nick))
+  return true
+end
+
+function _removeop(nick)
+  local returnvalue = false
+  for i=#ops,1,-1 do
+    if string.lower(nick) == ops[i] then
+      table.remove(ops, i)
+      returnvalue = true
+    end
+  end
+  return returnvalue
+end
+
+function user_isop(nick)
+  for i=1,#ops do
+    if nick == ops[i] then
+      return true
+    end
+  end
+  return false
+end
+
+
