@@ -56,7 +56,8 @@ function battle_message(strings, enemy_type)
 end
 
 
-function parsecommand(command)
+function parsecommand(command, nick)
+      print(nick)
       local c = tonumber(string.sub(command, -2))
       if c == nil then
         c = tonumber(string.sub(command, -1))
@@ -147,6 +148,9 @@ function parsecommand(command)
         return false
       elseif string.sub(command, 1, 6) == "go to " then
         player:go_to_name(string.sub(command, 7))
+      elseif string.sub(command, 1, 6) == "!reset" and irc.user_isop(nick) then
+        say("Resetting...")
+        emu.softreset()
       else
         return false
       end
@@ -271,7 +275,7 @@ function Player.update (self)
     map:set_tile(self:get_x(), self:get_y(), self:get_map(), self:get_tile())
   end
 
-  if hp == 0 and self.change.hp ~= 0 then
+  if hp == 0 and self.change.hp ~= 0 and player:get_map() > 0 then
     battle_message(strings.playerdefeat, player:get_tile()+1)
   end
 
@@ -1283,43 +1287,49 @@ function overlay()
 end
 
 function update()
-  -- create a save state every 10 minutes in case of a crash
-  map:dump()
---   if (emu.framecount() % 3600 == 0) then
---    savestate.persist(savestate.object(1))
-    -- path test
---   end
-  -- update the player and enemy info every 1/4 second
-  if (emu.framecount() % 15 == 0) then
-    player:update()
-    enemy:update()
-  end
+  if (player:get_map() > 0) then
+    -- create a save state every 10 minutes in case of a crash
+    map:dump()
+     if (emu.framecount() % 1000 == 0) then
+  --    savestate.persist(savestate.object(1))
+       print(irc.user_isop("mcgrew"), irc.user_isop("sirerdrick"))
+     end
+    -- update the player and enemy info every 1/4 second
+    if (emu.framecount() % 15 == 0) then
+      player:update()
+      enemy:update()
+    end
 
-  -- down + select => grind mode
-  if memory.readbyte(0x47) == 36 then
-    player.last_command = 0
-  end
+    -- down + select => grind mode
+    if memory.readbyte(0x47) == 36 then
+      player.last_command = 0
+    end
 
-  if features.repulsive then
-    memory.writebyte(0xdb, 0xff)
+    if features.repulsive then
+      memory.writebyte(0xdb, 0xff)
+    end
   end
 end
 
 
 -- for battle detection (enemies or you runnign away)
 function running(address)
-  if address == 0xefc8 then
-    battle_message(strings.enemyrun, player:get_tile()+1)
-  else
-    battle_message(strings.playerrun, player:get_tile()+1)
+  if (player:get_map() > 0) then
+    if address == 0xefc8 then
+      battle_message(strings.enemyrun, player:get_tile()+1)
+    else
+      battle_message(strings.playerrun, player:get_tile()+1)
+    end
+    battle_mode(false, true)
   end
-  battle_mode(false, true)
 end
 
 -- A thing draws near!
 function encounter(address)
-  battle_message(strings.encounter, memory.readbyte(0x3c)+1)
-  pre_battle = true
+  if (player:get_map() > 0) then
+    battle_message(strings.encounter, memory.readbyte(0x3c)+1)
+    pre_battle = true
+  end
 end
 
 -- this doesn't work
@@ -1361,16 +1371,20 @@ function main()
       if irc.messages_size() > 0 then
         msg = irc.message()
         if msg ~= nil then
-          command = string.lower(msg.message)
-          if (parsecommand(command)) then
+          print(msg.nick, msg.message)
+          local command = string.lower(msg.message)
+          local user = string.lower(msg.nick)
+          if parsecommand(command, user) then
             player.last_command = emu.framecount()
             player.mode.grind = false
           end
         end
       end
     end
-    player:grind()
-    player:follow_path()
+    if player:get_hp() > 0 and player:get_map() > 0 then
+      player:grind()
+      player:follow_path()
+    end
     emu.frameadvance()
   end
 end
