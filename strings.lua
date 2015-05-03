@@ -13,7 +13,7 @@ strings = {
     "Comest back here thee coward!",
     "Oh running away eh? Come back here and fight me! I'll bite your legs off!",
     "Oh comest on! Why did thee even comest over if thee were just to runnest away?",
-    "He was in quite a hurry.",
+    "It was in quite a hurry.",
     "That's right! You get on down the road and don't come back!",
     "Fine, just goest. Leavest me liketh everyone else. Well, excepteth that clingy princess.",
     "Wait what just happened? That %s just disappeared!"
@@ -23,7 +23,7 @@ strings = {
     "I have made my escape from the vile %s",
     "I just felt like running. So I did.",
     "You can't catch me son! Don't even try!",
-    "He was a fierce beast! With big fangs! What? Didn't you see the bones?",
+    "It was a fierce beast! With big fangs! What? Didn't you see the bones?",
     "I think I soiled my armor.",
     "Who, me? I wasn't running from it, I just had somewhere to be...that wasn't anywhere near that %s."
   },
