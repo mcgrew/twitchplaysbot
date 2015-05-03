@@ -55,7 +55,7 @@ strings = {
     "That really hurt, Charlie!",
     "Oy! Gevalt!",
     "I'll be back.",
-    "I'm not quite dead yet.",
+    "I'm not quite dead yet. Oh, nevermind, yes I am.",
     "Oh great king! A little help here please!",
     "Well that didn't go quite like I envisioned it.",
     "Thou are at fault for this! Thou! Thou! Not I! Thou art a terrible tactician!",
