@@ -1173,6 +1173,9 @@ Enemy = {
 }
 
 function herb_callback()
+  if player:get_gold() < 24 then
+		return true
+	end
   if player:get_herbs() < 6 then
     pressa()
     return false
