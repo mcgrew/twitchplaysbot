@@ -104,7 +104,7 @@ Map.shops = {
     }},
   },
   weapon = {
-    { x= 5, y= 6, m= 8, commands = {"right", "talk"}, items = { --brecconary
+    { x= 5, y= 6, m= 8, commands = {"up", "talk"}, items = { --brecconary
       "bamboo pole",
       "club",
       "copper sword",
