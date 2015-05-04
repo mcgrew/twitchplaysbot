@@ -168,7 +168,6 @@ function battle_mode (battling, reset_enemy_hp)
         -- overwrite monster hp to avoid confusion
         enemy:set_hp(0)
       end
-    else
     end
   end
   return in_battle
@@ -1322,6 +1321,7 @@ end
 -- A thing draws near!
 function encounter(address)
   if (player:get_map() > 0) then
+    player.valid_tile = false
     battle_message(strings.encounter, memory.readbyte(0x3c)+1)
     pre_battle = true
   end
