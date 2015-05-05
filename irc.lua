@@ -68,7 +68,7 @@ function read()
 				connected = true
 			end
 		else
-      if #buffer > 0 then
+      if buffer ~= nil and #buffer > 0 then
         emu.print(buffer)
       end
 		end
