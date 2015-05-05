@@ -281,9 +281,6 @@ Map.warps = {
   }
 
 Map.locations = {
-  ['the king' ] = {x=  3, y=  4, m= 5, commands = { "up", "talk" }, 
-    callback = function() for i=1,6 do wait(90); pressa() end return true end },
-  ['magic man'] = {x= 18, y= 26, m= 4, commands = { "right", "talk" }},
   tantegel      = {x= 43, y= 43, m= 1, map= 4},
   brecconary    = {x= 48, y= 41, m= 1, map= 8},
   garinham      = {x=  2, y=  2, m= 1, map= 9},
@@ -291,9 +288,17 @@ Map.locations = {
   rimuldar      = {x=102, y= 72, m= 1, map=11},
   cantlin       = {x= 73, y=102, m= 1, map=10},
   hauksness     = {x= 25, y= 89, m= 1, map= 3},
-  ['northern shrine'] = {x= 81, y=  1, m= 1, map=13},
-  ['southern shrine'] = {x=108, y=109, m= 1, map=14},
--- dragonlord    = {x= 17, y= 24, m= 6         },
+
+  ['northern shrine']   = {x= 81, y=  1, m= 1, map=13, commands = {"stairs"}},
+  ['southern shrine']   = {x=108, y=109, m= 1, map=14, commands = {"stairs"}},
+  ['the king' ]         = {x=  3, y=  4, m= 5, commands = { "up", "talk" }, 
+      callback = function() for i=1,6 do wait(90); pressa() end return true end },
+  ['magic man']         = {x= 18, y= 26, m= 4, commands = { "right", "talk" }},
+-- ["silver harp"]      = {x= 13, y=  6, m=26, commands={"take"},
+-- dragonlord           = {x= 17, y= 24, m= 6, commands={"left","talk"},
+-- ["erdrick's sword"]  = {x=  5, y=  5, m=16, commands={"take"},
+-- ["erdrick's armor"]  = {x= 17, y= 12, m= 3}, -- one step left of the armor
+-- ["erdrick's token"]  = {x= 83, y=113, m= 1, commands={"search"}}, 
   charlock      = {x= 48, y= 48, m= 1, map= 2}
 }
 
