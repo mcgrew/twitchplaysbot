@@ -93,20 +93,20 @@ function Map.cost(self, x, y, map_num)
   elseif tile == 0x2 then --hill
     return 3
   elseif tile == 0x3 then --stairs up
-    return 16 -- actually 1, but we should avoid them when navigating
+    return 1
   elseif tile == 0x4 then --brick
     return 2
   elseif tile == 0x5 then --stairs down
-    return 16 -- actually 1, but we should avoid them when navigating
+    return 1
   elseif tile == 0x6 then --swamp
     return 6 -- actually 2, but we normally want to avoid swamp.
     -- at some point, maybe we should account for Erdrick's armor
   elseif tile == 0x7 then --town
     return 1 --?
   elseif tile == 0x8 then --cave
-    return 16 -- probably 1, but we should avoid them when navigating
+    return 64 -- we should avoid this when navigating
   elseif tile == 0x9 then --castle
-    return 16 -- probably 1, but we should avoid them when navigating
+    return 64 -- we should avoid this when navigating
   elseif tile == 0xa then --bridge
     return 1 -- not sure about this value
   elseif tile == 0xb then --forest
@@ -116,6 +116,8 @@ function Map.cost(self, x, y, map_num)
   elseif tile == 0xd then --barrier
     return 16 -- actually 2, but we should avoid them when navigating
     -- at some point, maybe we should account for Erdrick's armor
+  elseif tile < 200 then
+    return 0 -- It's probably an invalid value. Prefer it so we can correct the map
   else
     return tile
   end
