@@ -299,6 +299,7 @@ Map.locations = {
 -- ["erdrick's sword"]  = {x=  5, y=  5, m=16, commands={"take"},
 -- ["erdrick's armor"]  = {x= 17, y= 12, m= 3}, -- one step left of the armor
 -- ["erdrick's token"]  = {x= 83, y=113, m= 1, commands={"search"}}, 
+-- ["stones of sunlight"]= {x=  4, y=  5, m=12, commands={"take"}}, 
   charlock      = {x= 48, y= 48, m= 1, map= 2}
 }
 
