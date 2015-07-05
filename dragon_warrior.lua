@@ -136,6 +136,8 @@ function parsecommand(command, nick)
         player:buy(string.sub(command, 6))
       elseif string.sub(command, 1, 3) == "buy" then
         player:buy(string.sub(command, 5))
+      elseif string.sub(command, 1, 6) == "!items" then
+        player:tell_items()
       elseif string.sub(command, 1, 8) == "!levelup" then
         local levelup = player:next_level()
         if levelup == 0 then
@@ -319,6 +321,61 @@ function Player.next_level(self)
     end
   end
   return 0
+end
+
+function Player.items(self)
+  local slot1 = math.floor(memory.readbyte(0xc1)%16)
+  local slot2 = math.floor(memory.readbyte(0xc1)/16)
+  local slot3 = math.floor(memory.readbyte(0xc2)%16)
+  local slot4 = math.floor(memory.readbyte(0xc2)/16)
+  local slot5 = math.floor(memory.readbyte(0xc3)%16)
+  local slot6 = math.floor(memory.readbyte(0xc3)/16)
+  local slot7 = math.floor(memory.readbyte(0xc4)%16)
+  local slot8 = math.floor(memory.readbyte(0xc4)/16)
+  local itemlist = {}
+  if slot1 > 0 then
+    table.insert(itemlist, Items[slot1])
+  end
+  if slot2 > 0 then
+    table.insert(itemlist, Items[slot2])
+  end
+  if slot3 > 0 then
+    table.insert(itemlist, Items[slot3])
+  end
+  if slot4 > 0 then
+    table.insert(itemlist, Items[slot4])
+  end
+  if slot5 > 0 then
+    table.insert(itemlist, Items[slot5])
+  end
+  if slot6 > 0 then
+    table.insert(itemlist, Items[slot6])
+  end
+  if slot7 > 0 then
+    table.insert(itemlist, Items[slot7])
+  end
+  if slot8 > 0 then
+    table.insert(itemlist, Items[slot8])
+  end
+  return itemlist
+end
+
+function Player.tell_items(self)
+  local herbs = self:get_herbs()
+  local keys = self:get_keys()
+  local items = self:items()
+  local text = "In my bag, I seem to have"
+  if herbs > 0 then
+    text = ("%s %d herbs,"):format(text, herbs)
+  end
+  if keys > 0 then
+    text = ("%s %d keys,"):format(text, keys)
+  end
+  for key,value in pairs(items) do
+    text = ("%s %s,"):format(text, value)
+  end
+  text = ("%s."):format(string.sub(text, 1, #text - 1))
+  say(text)
 end
 
 function Player.get_hp(self)
@@ -1309,7 +1366,7 @@ function update()
 end
 
 
--- for battle detection (enemies or you runnign away)
+-- for battle detection (enemies or you running away)
 function running(address)
   if (player:get_map() > 0) then
     if address == 0xefc8 then
