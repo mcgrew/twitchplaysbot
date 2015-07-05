@@ -33,7 +33,7 @@ Items = {
   "Fairy Water",
   "Wings",
   "Dragon's Scale",
-  "Fairy Flue",
+  "Fairy Flute",
   "Fighter's Ring",
   "Erdrick's Token",
   "Gwaelin's Love",
