@@ -112,7 +112,7 @@ Map.shops = {
       "leather armor",
       "small shield"
     }},
-    { x= 5, y= 6, m= 8, commands = {"down", "talk"}, items = { --garinham
+    { x=10, y=16, m= 9, commands = {"down", "talk"}, items = { --garinham
       "club",
       "copper sword",
       "hand axe",
