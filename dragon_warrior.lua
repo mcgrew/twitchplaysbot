@@ -138,14 +138,24 @@ function parsecommand(command, nick)
         player:buy(string.sub(command, 5))
       elseif string.sub(command, 1, 6) == "!items" then
         player:tell_items()
+        return false
+      elseif string.sub(command, 1, 7) == "!status" then
+        player:tell_status()
+        return false
+      elseif string.sub(command, 1, 8) == "!gwaelin" then
+        player:tell_gwaelin()
+        return false
+      elseif string.sub(command, 1, 9) == "!princess" then
+        player:tell_gwaelin()
+        return false
+      elseif string.sub(command, 1, 10) == "!equipment" then
+        player:tell_equipment()
+        return false
+      elseif string.sub(command, 1, 6) == "!equip" then
+        player:tell_equipment()
+        return false
       elseif string.sub(command, 1, 8) == "!levelup" then
-        local levelup = player:next_level()
-        if levelup == 0 then
-          say("I have already reached the maximum level")
-        else
-          say(("To reach the next level I need %d more experience points")
-               :format(levelup))
-        end
+        player:tell_next_level()
         return false
       elseif string.sub(command, 1, 6) == "go to " then
         player:go_to_name(string.sub(command, 7))
@@ -364,7 +374,7 @@ function Player.tell_items(self)
   local herbs = self:get_herbs()
   local keys = self:get_keys()
   local items = self:items()
-  local text = "In my bag, I seem to have"
+  local text = "I have"
   if herbs > 0 then
     text = ("%s %d herbs,"):format(text, herbs)
   end
@@ -375,6 +385,60 @@ function Player.tell_items(self)
     text = ("%s %s,"):format(text, value)
   end
   text = ("%s."):format(string.sub(text, 1, #text - 1))
+  say(text)
+end
+
+function Player.tell_status(self)
+  local text = "I am at level %d. HP: %d/%d, MP: %d/%d, Strength: %d, Agility: %d, Attack Power: %d, Defense Power: %d. I have %d gold."
+  text = text:format(self:get_level(), self:get_hp(), self:max_hp(), 
+                     self:get_mp(), self:max_mp(), self:get_strength(),
+                     self:get_agility(), self:get_attack(), self.get_defense(), 
+                     self:get_gold())
+  say(text)
+end
+
+function Player.tell_next_level()
+  local levelup = player:next_level()
+  if levelup == 0 then
+    say("I have already reached the maximum level")
+  else
+    say(("To reach the next level I need %d more experience points")
+         :format(levelup))
+  end
+  return false
+end
+
+function Player.tell_gwaelin()
+  local gwaelin = memory.readbyte(0xdf) % 4
+  if (gwaelin == 0) then
+    say("Gwaelin? She's still chillin' with the dragon I guess.")
+  elseif (gwaelin == 1) then
+    say("Gwaelin? I'm carrying her doofus.")
+  elseif (gwaelin == 2) then
+    say("I have rescued her pushiness. She is at home with her father.")
+  end
+end
+
+function Player.tell_equipment(self)
+  local equipment = memory.readbyte(0xbe)
+  local shield = "No Shield"
+  local armor = "My Birthday Suit"
+  local weapon = "Fists of Fury"
+  local shieldval = equipment % 4
+  local armorval = (equipment - shieldval) % 32
+  local weaponval = equipment - armorval - shieldval
+  for i, val in pairs(Player.equipment_list) do
+    if val['value'] == shieldval then
+      shield = val['name']
+    end
+    if val['value'] == armorval then
+      armor = val['name']
+    end
+    if val['value'] == weaponval then
+      weapon = val['name']
+    end
+  end
+  text = ("For my equipment, I have %s, %s, and %s"):format(weapon, armor, shield)
   say(text)
 end
 
@@ -458,6 +522,26 @@ function Player.set_experience (self, amount)
   memory.writebyte(0xbb, self.experience / 256)
   memory.writebyte(0xba, self.experience % 256)
 end
+
+function Player.get_strength()
+  return memory.readbyte(0xc8)
+end
+
+
+function Player.get_agility()
+  return memory.readbyte(0xc9)
+end
+
+
+function Player.get_attack()
+  return memory.readbyte(0xcc)
+end
+
+
+function Player.get_defense()
+  return memory.readbyte(0xcd)
+end
+
 
 function Player.add_herb (self)
   self.herbs = memory.readbyte(0xc0)
@@ -1346,6 +1430,10 @@ function update()
     -- create a save state every 10 minutes in case of a crash
     map:dump()
      if (emu.framecount() % 1000 == 0) then
+       player:tell_status()
+       player:tell_next_level()
+       player:tell_gwaelin()
+       player:tell_equipment()
   --    savestate.persist(savestate.object(1))
      end
     -- update the player and enemy info every 1/4 second
