@@ -1430,10 +1430,6 @@ function update()
     -- create a save state every 10 minutes in case of a crash
     map:dump()
      if (emu.framecount() % 1000 == 0) then
-       player:tell_status()
-       player:tell_next_level()
-       player:tell_gwaelin()
-       player:tell_equipment()
   --    savestate.persist(savestate.object(1))
      end
     -- update the player and enemy info every 1/4 second
