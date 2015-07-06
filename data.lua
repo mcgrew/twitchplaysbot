@@ -1,7 +1,7 @@
 
 Player.equipment_list = {
   { name="Small Shield", value=1  },
-  { name="Large Sheild", value=2  },
+  { name="Large Shield", value=2  },
   { name="Silver Shield", value=3  },
   { name="Clothes", value=4  },
   { name="Leather Armor", value=8  },
@@ -118,7 +118,7 @@ Map.shops = {
       "hand axe",
       "chain mail",
       "half plate",
-      "large sheild"
+      "large shield"
     }},
     { x=20, y=12, m= 7, commands = {"right", "talk"}, items = { --kol
       "copper sword",
@@ -142,7 +142,7 @@ Map.shops = {
       "copper sword",
       "leather armor",
       "chain mail",
-      "large sheild"
+      "large shield"
     }},
     { x=25, y=26, m=10, commands = {"right", "talk"}, items = { --cantlin
       "bamboo pole",
@@ -150,7 +150,7 @@ Map.shops = {
       "copper sword",
       "leather armor",
       "chain mail",
-      "large sheild"
+      "large shield"
     }},
     { x=26, y=12, m=10, commands = {"left", "talk"}, items = { --cantlin
       "hand axe",
