@@ -15,7 +15,7 @@ Player.equipment_list = {
   { name="Copper Sword", value=96 },
   { name="Hand Axe", value=128},
   { name="Broad Sword", value=160},
-  { name="Flame Sword", value=182},
+  { name="Flame Sword", value=192},
   { name="Erdrick's Sword", value=224},
 }
 
