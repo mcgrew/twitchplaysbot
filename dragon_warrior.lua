@@ -1261,10 +1261,10 @@ function Player.heal_thy_self(self)
     elseif self:herb() then
       returnvalue = true
     end
-  elseif not in_battle and self:get_hp() + 30 < self:max_hp() and (self:get_level() < 17) then
+  elseif not in_battle and self:get_hp() + 16 <= self:max_hp() and (self:get_level() < 17) then
     if self:heal() then
       returnvalue = true
-    elseif self:herb() then
+    elseif self:get_hp() + 30 <= self:max_hp() and self:herb() then
       returnvalue = true
     end
   end
