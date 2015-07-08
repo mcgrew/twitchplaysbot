@@ -321,6 +321,11 @@ function Player.get_level(self)
   return memory.readbyte(0xc7)
 end
 
+function Player.is_maxed(self)
+  local level = player:get_level()
+  return level == 30 or level == features.max_level
+end
+
 function Player.next_level(self)
   if self:get_level() == features.level_cap then
     return 0
@@ -1232,6 +1237,10 @@ function Player.set_mode(self, mode)
     self.destination_commands = nil
     self.destination_callback = nil
   elseif features.grind_mode and mode == "grind" then
+    if self:get_level() >= features.level_cap then
+      say("I think I'm strong enough now.")
+      return
+    end
     self.mode.grind = true
     self.mode.auto_battle = false
     self.mode.fraidy_cat = false
@@ -1512,7 +1521,7 @@ function main()
         if msg ~= nil then
           local command = string.lower(msg.message)
           local user = string.lower(msg.nick)
-          if parsecommand(command, user) then
+          if parsecommand(command, user) or player:is_maxed() then
             player.last_command = emu.framecount()
             player.mode.grind = false
           end
